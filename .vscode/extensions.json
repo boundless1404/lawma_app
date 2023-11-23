@@ -3,8 +3,9 @@
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
     "editorconfig.editorconfig",
-    "vue.volar",
-    "wayou.vscode-todo-highlight"
+    "wayou.vscode-todo-highlight",
+    "easycodeai.copilot-chatgpt-vscode",
+    "sourcegraph.cody-ai"
   ],
   "unwantedRecommendations": [
     "octref.vetur",
