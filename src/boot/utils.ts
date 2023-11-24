@@ -1,4 +1,3 @@
-import { getCssVar } from 'quasar';
 import { boot } from 'quasar/wrappers';
 import getColor from 'src/plugins/getColor';
 

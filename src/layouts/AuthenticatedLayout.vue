@@ -20,16 +20,7 @@
             {{ pageTitle }}
           </q-badge>
           <div v-else></div>
-          <q-badge
-            class="text-body1 text-bold"
-            :style="{
-              border: `0.1rem solid  ${getColor('dark')}`,
-              backgroundColor: 'transparent',
-              padding: '1rem 0.5rem',
-              color: getColor('dark'),
-            }"
-            >Lawma App</q-badge
-          >
+          <lawma-app-badge />
         </q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -78,6 +69,7 @@ import { getCssVar, useMeta } from 'quasar';
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { onMounted } from 'vue';
+import LawmaAppBadge from 'src/components/LawmaAppBadge.vue';
 
 // consts
 const leftDrawerOpen = ref(true);
