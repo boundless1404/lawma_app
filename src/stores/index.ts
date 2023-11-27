@@ -1,6 +1,16 @@
 import { store } from 'quasar/wrappers'
 import { createPinia } from 'pinia'
 import { Router } from 'vue-router';
+import localforage from 'localforage';
+
+/**
+ * Initialize localforage.
+ */
+localforage.config({
+  name: 'Lawma_app_quasar',
+  storeName: 'Lawma_app_storage',
+  driver: [localforage.INDEXEDDB, localforage.LOCALSTORAGE],
+});
 
 /*
  * When adding new properties to stores, you should also
@@ -30,3 +40,31 @@ export default store((/* { ssrContext } */) => {
 
   return pinia
 })
+
+export type AuthUserData = {
+  token?: string;
+  userData?: {
+    id: string;
+    firstName: string;
+    lastName: string;
+    email: string;
+    middleName?: string;
+  }
+  profile?: {
+    id: string;
+    profileTypeId: string;
+    profileType: ProfileTypes;
+    companyProfileId?: string;
+  }
+}
+
+export enum ProfileTypes {
+  ENTITY_USER_PROFILE = 'entity_user_profile',
+  ENTITY_SUBSCRIBER_PROFILE = 'entity_subscriber_profile'
+}
+
+export enum StorageNamesEnum {
+  AUTH_USER_DATA = 'auth_user_data'
+}
+
+export const storeforage = localforage;

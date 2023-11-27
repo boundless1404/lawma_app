@@ -66,15 +66,22 @@
 
 <script setup lang="ts">
 import { getCssVar, useMeta } from 'quasar';
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { onMounted } from 'vue';
 import LawmaAppBadge from 'src/components/LawmaAppBadge.vue';
+import useAuthStore from 'src/stores/auth-store';
+import { storeToRefs } from 'pinia';
+import { getStoreState } from 'src/boot/storeforage';
+import { AuthUserData } from 'src/stores';
 
 // consts
 const leftDrawerOpen = ref(true);
 const router = useRouter();
 const pageTitle = ref('Dashboard');
+const authStore = useAuthStore()
+
+// refs
+const { token } = storeToRefs(authStore);
 
 // methods
 function getRoutePath() {
@@ -99,20 +106,7 @@ useMeta(() => {
   };
 });
 
-// prefetch
-defineOptions({
-  preFetch({ currentRoute, redirect }) {
-    // TODO: implement sigin in check logic
-    const isSigned = true;
-    console.log('Prefect is called at ' + `${currentRoute}`);
-
-    if (!isSigned) {
-      redirect({ path: '/auth/signin' });
-    }
-  },
+onMounted(() => {
+  console.log('Here is tht token value on mount', token);
 });
-
-// onMounted(() => {
-//   // console.log($getColor)
-// });
 </script>
