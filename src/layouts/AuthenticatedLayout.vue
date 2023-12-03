@@ -31,6 +31,7 @@
       v-model="leftDrawerOpen"
       side="left"
       bordered
+      persistent
     >
       <!-- drawer content -->
       <q-card style="background-color: inherit">
@@ -71,14 +72,12 @@ import { useRouter } from 'vue-router';
 import LawmaAppBadge from 'src/components/LawmaAppBadge.vue';
 import useAuthStore from 'src/stores/auth-store';
 import { storeToRefs } from 'pinia';
-import { getStoreState } from 'src/boot/storeforage';
-import { AuthUserData } from 'src/stores';
 
 // consts
 const leftDrawerOpen = ref(true);
 const router = useRouter();
 const pageTitle = ref('Dashboard');
-const authStore = useAuthStore()
+const authStore = useAuthStore();
 
 // refs
 const { token } = storeToRefs(authStore);

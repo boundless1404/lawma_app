@@ -1,7 +1,8 @@
 export enum EventNamesEnum {
   SIGN_IN = 'signin',
   SIGN_OUT = 'signout',
-  SIGN_UP ='signup',
+  SIGN_UP = 'signup',
+  NEW_PROPERTY_SUBSCRIPTION = 'new_property_subscription',
   // RESET_PASSWORD = '<PASSWORD>',
   // RESET_PASSWORD_CONFIRM = '<PASSWORD>',
   // CHANGE_PASSWORD = '<PASSWORD>',

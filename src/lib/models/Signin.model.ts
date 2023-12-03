@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty } from 'class-validator';
 import { BaseModel } from './base.model';
 
 export default class SigninModel extends BaseModel {

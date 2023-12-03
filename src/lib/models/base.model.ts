@@ -9,4 +9,15 @@ export class BaseModel {
     }
     this.errors = errors;
   }
+
+  clearValues() {
+    for (const key in this) {
+      if (
+        this.hasOwnProperty(key) &&
+        typeof this[key as keyof this] !== 'function'
+      ) {
+        (this as unknown as Record<string, null>)[key] = null; // Set to default value or desired empty state
+      }
+    }
+  }
 }
