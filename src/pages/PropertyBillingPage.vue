@@ -65,8 +65,13 @@
           </div>
         </q-tab-panel>
         <q-tab-panel :name="NamedTabsEnum.BILLINGS">
-          <div :style="{ width: '100%' }">
-            <q-select v-model="currentBIllingMonth"></q-select>
+          <div :style="{ width: '100%' }" style="width: 10rem">
+            <q-select
+              v-model="currentBIllingMonth"
+              label="Month"
+              filled
+              outlined
+            ></q-select>
           </div>
           <div>
             <q-card rounded class="bg-accent">
