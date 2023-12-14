@@ -1,7 +1,7 @@
 import { IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseModel } from './base.model';
 
-export class GenerateBillModel extends BaseModel {
+export class BillingModel extends BaseModel {
   @IsOptional()
   streetId: string;
 

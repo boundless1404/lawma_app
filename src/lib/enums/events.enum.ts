@@ -3,6 +3,8 @@ export enum EventNamesEnum {
   SIGN_OUT = 'signout',
   SIGN_UP = 'signup',
   NEW_PROPERTY_SUBSCRIPTION = 'new_property_subscription',
+  TRIGGER_REMOTE_MODAL_LGA = 'trigger_remote_modal_lga',
+  TRIGGER_REMOTE_MODAL_LGA_WARD = 'trigger_remote_modal_lga_ward',
   // RESET_PASSWORD = '<PASSWORD>',
   // RESET_PASSWORD_CONFIRM = '<PASSWORD>',
   // CHANGE_PASSWORD = '<PASSWORD>',

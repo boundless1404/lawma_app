@@ -1,9 +1,9 @@
 <template>
   <q-card
     :style="{
-      width: '100%',
-      height: '100%',
-      backgroundColor: $getColor('accent'),
+      width: width,
+      height: height,
+      backgroundColor: $getColor(bgColor),
     }"
   >
     <slot></slot>

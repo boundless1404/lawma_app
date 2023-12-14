@@ -4,6 +4,7 @@
       backgroundColor: lightPageColor,
       height: '100vh',
       padding: '0 1rem',
+      width: '100%',
     }"
   >
     <div class="row justify-between items-center">
@@ -100,32 +101,96 @@
       </q-tab-panels>
     </div>
     <!-- add new property dialog -->
-    <div>
-      <q-dialog v-model="showDialog">
-        <!-- dialog content -->
-        <div
-          class="flex flex-center"
-          style="height: 85vh; width: 80%; overflow-y;: scroll;"
-        >
-          <component :is="currentDialogComponent" />
-        </div>
-      </q-dialog>
-    </div>
+    <!-- <div style="width: 80rem"> -->
+    <q-dialog v-model="showDialog">
+      <!-- dialog content -->
+      <!-- <div class="flex flex-center" style="height: 85vh; width: 85rem"> -->
+      <dialog-card height="auto">
+        <!-- <component :is="currentDialogComponent" /> -->
+        <new-property-subscription
+          v-if="currentTab === NamedTabsEnum.PROPERTIES"
+          @add-subscriber="
+            onSecondaryModalTrigger(NamedSecondaryModal.ADD_SUBSCRIBER)
+          "
+          @add-street="onSecondaryModalTrigger(NamedSecondaryModal.ADD_STREET)"
+          @add-property-type="
+            onSecondaryModalTrigger(NamedSecondaryModal.ADD_PROPERTY_TYPE)
+          "
+        />
+        <generate-bill v-else-if="currentTab === NamedTabsEnum.BILLINGS" />
+      </dialog-card>
+      <!-- </div> -->
+    </q-dialog>
+    <q-dialog
+      v-model="showSecondaryDialog"
+      persistent
+      transition-show="scale"
+      transition-hide="scale"
+    >
+      <dialog-card height="auto">
+        <add-subscriber
+          v-if="secondaryModalValue === NamedSecondaryModal.ADD_SUBSCRIBER"
+        />
+        <add-street
+          v-else-if="secondaryModalValue === NamedSecondaryModal.ADD_STREET"
+        />
+        <add-property-type
+          v-else-if="
+            secondaryModalValue === NamedSecondaryModal.ADD_PROPERTY_TYPE
+          "
+        />
+      </dialog-card>
+    </q-dialog>
+    <q-dialog
+      v-model="showRemotelyTriggeredDialog"
+      persistent
+      transition-show="scale"
+      transition-hide="scale"
+    >
+      <dialog-card height="auto">
+        <add-lga v-if="remoteModalValue === NamedRemoteModal.ADD_LGA" />
+        <add-lga-ward
+          v-else-if="remoteModalValue === NamedRemoteModal.ADD_LGA_WARD"
+        />
+      </dialog-card>
+    </q-dialog>
+    <!-- </div> -->
   </div>
 </template>
 <script setup lang="ts">
 import { getCssVar } from 'quasar';
-import { computed } from 'vue';
+import { computed, inject } from 'vue';
 import { ref } from 'vue';
 import NewPropertySubscription from '../components/NewPropertySubscription.vue';
 import GenerateBill from '../components/GenerateBill.vue';
+import DialogCard from '../components/DialogCard.vue';
+import AddSubscriber from '../components/AddSubscriber.vue';
+import AddStreet from '../components/AddStreet.vue';
+import AddPropertyType from '../components/AddPropertyType.vue';
+import { EventBus } from 'quasar';
+import { EventNamesEnum } from 'src/lib/enums/events.enum';
+import AddLga from '../components/AddLga.vue';
+import AddLgaWard from '../components/AddLgaWard.vue';
 
 // consts
 const lightPageColor = getCssVar('light-page') || '#ffffff';
+const eventBus = inject('eventBus') as EventBus;
+
 enum NamedTabsEnum {
   PROPERTIES = 'Properties',
   BILLINGS = 'Billings',
 }
+enum NamedSecondaryModal {
+  ADD_SUBSCRIBER,
+  ADD_STREET,
+  ADD_PROPERTY_TYPE,
+}
+
+enum NamedRemoteModal {
+  ADD_LGA,
+  ADD_LGA_WARD,
+}
+
 const rows = [
   {
     col1: 'This is col 1',
@@ -156,8 +221,13 @@ const monthNow = months[new Date().getMonth() + 1];
 const currentTab = ref<NamedTabsEnum>(NamedTabsEnum.PROPERTIES);
 const showDialog = ref(false);
 const currentBIllingMonth = ref(monthNow);
+const showSecondaryDialog = ref(false);
+const showRemotelyTriggeredDialog = ref(false);
+const secondaryModalValue = ref(NamedSecondaryModal.ADD_SUBSCRIBER);
+const remoteModalValue = ref(NamedRemoteModal.ADD_LGA);
 
 // computed
+
 const currentTabButtonAction = computed(() => {
   const tabActions = {
     [NamedTabsEnum.PROPERTIES]: 'Add New Property',
@@ -167,17 +237,32 @@ const currentTabButtonAction = computed(() => {
   return tabActions[currentTab.value];
 });
 
-const currentDialogComponent = computed(() => {
-  const dialogComponents = {
-    [NamedTabsEnum.PROPERTIES]: NewPropertySubscription,
-    [NamedTabsEnum.BILLINGS]: GenerateBill,
-  };
+// const currentDialogComponent = computed(() => {
+//   const dialogComponents = {
+//     [NamedTabsEnum.PROPERTIES]: NewPropertySubscription,
+//     [NamedTabsEnum.BILLINGS]: GenerateBill,
+//   };
 
-  return dialogComponents[currentTab.value];
-});
+//   return dialogComponents[currentTab.value];
+// });
 
 // methods
 function toggleDialog() {
   showDialog.value = !showDialog.value;
 }
+
+function onSecondaryModalTrigger(currentModalValue: NamedSecondaryModal) {
+  showSecondaryDialog.value = true;
+  secondaryModalValue.value = currentModalValue;
+}
+
+eventBus.on(EventNamesEnum.TRIGGER_REMOTE_MODAL_LGA, () => {
+  remoteModalValue.value = NamedRemoteModal.ADD_LGA;
+  showRemotelyTriggeredDialog.value = true;
+});
+
+eventBus.on(EventNamesEnum.TRIGGER_REMOTE_MODAL_LGA_WARD, () => {
+  remoteModalValue.value = NamedRemoteModal.ADD_LGA_WARD;
+  showRemotelyTriggeredDialog.value = true;
+});
 </script>

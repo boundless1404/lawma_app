@@ -1,13 +1,14 @@
 import { IsBoolean, IsNotEmpty, IsOptional } from 'class-validator';
 import { BaseModel } from './base.model';
 
-export class NewPropertySubscriptionModel extends BaseModel {
+export class PropertySubscriptionModel extends BaseModel {
   @IsNotEmpty({ message: 'Please, enter the property name' })
   propertyName: string;
 
   @IsNotEmpty({ message: 'Please, enter the property unit' })
   propertyUnit: number;
 
+  @IsOptional()
   expectedMonthlyCost: string;
 
   @IsNotEmpty({ message: 'Please, select the property type' })
@@ -17,7 +18,7 @@ export class NewPropertySubscriptionModel extends BaseModel {
   streetId: string;
 
   @IsNotEmpty({ message: 'Please, enter the street number' })
-  streetNumner: string;
+  streetNumber: string;
 
   @IsOptional()
   oldCode: string;
