@@ -76,7 +76,7 @@ import LawmaAppBadge from 'src/components/LawmaAppBadge.vue';
 import { onMounted } from 'vue';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
 import { SigninEventHandler } from 'src/lib/eventHandlers/Signin.handler';
-import SigninModel from 'src/lib/models/Signin.model';
+import SigninModel from 'src/models/Signin.model';
 import { asyncComputed } from '@vueuse/core';
 import useAuthStore from 'src/stores/auth-store';
 import { storeToRefs } from 'pinia';

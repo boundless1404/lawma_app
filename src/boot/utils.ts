@@ -1,5 +1,5 @@
 import { boot } from 'quasar/wrappers';
-import { BaseModel } from 'src/lib/models/base.model';
+import { BaseModel } from 'src/models/base.model';
 import { getHighestZIndex, validateField } from 'src/lib/utils';
 import getColor from 'src/plugins/getColor';
 

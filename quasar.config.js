@@ -123,6 +123,9 @@ module.exports = configure(function (/* ctx */) {
           info: '#7032ed',
           warning: '#F2C037',
         },
+        loading: {
+          spinnerColor: 'primary',
+        },
       },
 
       // iconSet: 'material-icons', // Quasar icon set
@@ -136,7 +139,7 @@ module.exports = configure(function (/* ctx */) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Notify'],
+      plugins: ['Notify', 'Loading'],
     },
 
     // animations: 'all', // --- includes all animations

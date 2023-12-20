@@ -8,7 +8,7 @@
   </q-card-section>
   <!-- form -->
   <q-card-section>
-    <form class="q-px-lg" @submit.prevent>
+    <q-form class="q-px-lg" @submit.prevent ref="addStreetForm">
       <div class="q-gutter-xl">
         <q-input
           label="Street Name"
@@ -27,7 +27,11 @@
           color="secondary"
           label-color="dark"
           :options="lgaOptions"
+          :rules="[() => $validateField(streetModel, 'lgaId')]"
           v-model="streetModel.lgaId"
+          emit-value
+          map-options
+          clearable
         >
           <template v-slot:append>
             <q-btn
@@ -60,7 +64,11 @@
           color="secondary"
           label-color="dark"
           :options="lgaWardOptions"
+          :rules="[() => $validateField(streetModel, 'lgaWardId')]"
           v-model="streetModel.lgaWardId"
+          emit-value
+          map-options
+          clearable
         >
           <template v-slot:append>
             <q-btn
@@ -101,20 +109,30 @@
           @click="onSubmit"
         />
       </div>
-    </form>
+    </q-form>
   </q-card-section>
 </template>
 <script setup lang="ts">
 import { asyncComputed } from '@vueuse/core';
-import { StreetModel } from 'src/lib/models/Street.model';
-import { LGAModel } from 'src/lib/models/lga.model';
-import { LGAWardModel } from 'src/lib/models/lgaWard.model';
-import { inject, reactive } from 'vue';
+import { StreetModel } from 'src/models/Street.model';
+import { LGAModel } from 'src/models/lga.model';
+import { LGAWardModel } from 'src/models/lgaWard.model';
+import {
+  computed,
+  inject,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+  watch,
+} from 'vue';
 import ModalPopupClose from '../components/ModalPopupClose.vue';
 import TitleBadge from '../components/TitleBadge.vue';
 import { defineComponent } from 'vue';
-import { EventBus } from 'quasar';
+import { EventBus, QForm, useQuasar } from 'quasar';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
+import { LgaWardStreetHandler } from 'src/lib/eventHandlers/LgaWardStreet.handler';
+import { clearUIEffects } from 'src/lib/utils';
 
 defineComponent({
   name: 'add-street',
@@ -126,27 +144,41 @@ defineEmits<{
 }>();
 
 // consts
-const lgas: LGAModel[] = [];
-const lgaWards: LGAWardModel[] = [];
+const lgas = ref<LGAModel[]>([]);
+const lgaWards = ref<LGAWardModel[]>([]);
 const eventBus = inject('eventBus') as EventBus;
+const $q = useQuasar();
+
+// refs
+const addStreetForm = ref<QForm>();
+
+// variables
+let postStreetTimer: NodeJS.Timeout;
 
 // models
 const streetModel = reactive(new StreetModel());
 
-// computed
-const lgaOptions = lgas.map((lga) => {
-  return {
-    label: lga.name,
-    value: lga.id,
-  };
-});
+// controllers
+LgaWardStreetHandler.handlePostStreet(eventBus, { onSuccess, onError });
 
-const lgaWardOptions = lgaWards.map((lgaWard) => {
-  return {
-    label: lgaWard.name,
-    value: lgaWard.id,
-  };
-});
+// computed
+const lgaOptions = computed(() =>
+  lgas.value.map((lga) => {
+    return {
+      label: lga.name,
+      value: lga.id,
+    };
+  })
+);
+
+const lgaWardOptions = computed(() =>
+  lgaWards.value.map((lgaWard) => {
+    return {
+      label: lgaWard.name,
+      value: lgaWard.id,
+    };
+  })
+);
 
 asyncComputed(async () => {
   await streetModel.validate();
@@ -155,12 +187,55 @@ asyncComputed(async () => {
 // methods
 function onSubmit() {
   //
-  console.log(streetModel);
+  if (!isModelValid()) {
+    addStreetForm.value?.validate();
+    return;
+  }
+  $q.loading.show({
+    message: 'Submitting ...',
+  });
+  eventBus.emit(EventNamesEnum.POST_STREET, streetModel);
+  postStreetTimer = setTimeout(() => {
+    $q.loading.hide();
+  }, 10000);
+}
+
+function onSuccess() {
+  // clear form
+  streetModel.clearValues();
+  clearUIEffects({ loader: $q.loading, timer: postStreetTimer });
+}
+
+function onError() {
+  clearUIEffects({ loader: $q.loading, timer: postStreetTimer });
+}
+
+function isModelValid() {
+  return !streetModel.errors?.length;
 }
 
 // events invocation
 function emitEvent(eventName: EventNamesEnum) {
-  console.log('event emitted is: ', eventName);
   eventBus.emit(eventName);
 }
+
+// watcher
+watch(
+  () => streetModel.lgaId,
+  async (newValue) => {
+    lgaWards.value = await LgaWardStreetHandler.getLgaWards({
+      lgaId: newValue,
+    });
+  }
+);
+
+// lifecycle hooks
+onMounted(async () => {
+  //
+  lgas.value = await LgaWardStreetHandler.getLgas();
+});
+
+onBeforeUnmount(() => {
+  clearUIEffects({ loader: $q.loading, timer: postStreetTimer });
+});
 </script>

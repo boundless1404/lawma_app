@@ -91,7 +91,7 @@
 <script setup lang="ts">
 import { defineComponent, reactive, ref } from 'vue';
 import TitleBadge from './TitleBadge.vue';
-import { SubscriberModel } from 'src/lib/models/Subscriber.mode';
+import { SubscriberModel } from 'src/models/Subscriber.model';
 import { asyncComputed } from '@vueuse/core';
 import ModalPopupClose from '../components/ModalPopupClose.vue';
 import { onMounted } from 'vue';

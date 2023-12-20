@@ -26,25 +26,39 @@
           type="submit"
           color="primary"
           rounded
-          @click="onSubmit"
+          @click.prevent="onSubmit"
         />
       </div>
     </form>
   </q-card-section>
 </template>
 <script setup lang="ts">
-import { LGAModel } from 'src/lib/models/lga.model';
+import { LGAModel } from 'src/models/lga.model';
 import TitleBadge from '../components/TitleBadge.vue';
 import ModalPopupClose from './ModalPopupClose.vue';
-import { reactive, defineComponent } from 'vue';
+import { reactive, defineComponent, inject, onBeforeUnmount } from 'vue';
 import { asyncComputed } from '@vueuse/core';
+import { LgaWardStreetHandler } from 'src/lib/eventHandlers/LgaWardStreet.handler';
+import { EventBus, useQuasar } from 'quasar';
+import { EventNamesEnum } from 'src/lib/enums/events.enum';
+import { clearUIEffects } from 'src/lib/utils';
 
 defineComponent({
   name: 'add-lga',
 });
 
+// injections
+const eventBus = inject('eventBus') as EventBus;
+
+// consts
+const $q = useQuasar();
+let postLgaTimer: NodeJS.Timeout;
+
 // model
 const lgaModel = reactive(new LGAModel());
+
+// controllers
+LgaWardStreetHandler.handlePostLga(eventBus, { onSuccess, onError });
 
 // computed
 asyncComputed(async () => {
@@ -54,6 +68,32 @@ asyncComputed(async () => {
 // methods
 function onSubmit() {
   //
-  console.log(lgaModel);
+  if (!isModelValid()) return;
+  $q.loading.show({
+    message: 'Submitting ...',
+  });
+  eventBus.emit(EventNamesEnum.POST_LGA, lgaModel);
+  postLgaTimer = setTimeout(() => {
+    $q.loading.hide();
+  }, 10000);
 }
+
+function onSuccess() {
+  // clear form
+  lgaModel.clearValues();
+  clearUIEffects({ loader: $q.loading, timer: postLgaTimer });
+}
+
+function onError() {
+  clearUIEffects({ loader: $q.loading, timer: postLgaTimer });
+}
+
+function isModelValid() {
+  return !lgaModel.errors?.length;
+}
+
+// lifecycle hooks
+onBeforeUnmount(() => {
+  clearUIEffects({ loader: $q.loading, timer: postLgaTimer });
+});
 </script>

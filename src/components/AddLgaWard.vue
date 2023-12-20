@@ -6,7 +6,7 @@
     </div>
   </q-card-section>
   <q-card-section>
-    <form>
+    <q-form ref="lgaWardForm">
       <div>
         <q-input
           label="Name"
@@ -23,6 +23,10 @@
           label-color="dark"
           v-model="lgaWardModel.lgaId"
           :options="lgaOptions"
+          :rules="[() => $validateField(lgaWardModel, 'lgaId')]"
+          emit-value
+          map-options
+          clearable
         >
           <template v-slot:append>
             <q-btn flat round dense icon="add" />
@@ -45,46 +49,107 @@
           type="submit"
           color="primary"
           rounded
-          @click="onSubmit"
+          @click.prevent="onSubmit"
         />
       </div>
-    </form>
+    </q-form>
   </q-card-section>
 </template>
 <script setup lang="ts">
-import { LGAWardModel } from 'src/lib/models/lgaWard.model';
+import { LGAWardModel } from 'src/models/lgaWard.model';
 import TitleBadge from '../components/TitleBadge.vue';
 import ModalPopupClose from './ModalPopupClose.vue';
-import { reactive } from 'vue';
+import {
+  computed,
+  inject,
+  onBeforeUnmount,
+  onMounted,
+  reactive,
+  ref,
+} from 'vue';
 import { asyncComputed } from '@vueuse/core';
-import { LGAModel } from 'src/lib/models/lga.model';
+import { LGAModel } from 'src/models/lga.model';
 import { defineComponent } from 'vue';
+import { LgaWardStreetHandler } from 'src/lib/eventHandlers/LgaWardStreet.handler';
+import { EventBus, QForm, useQuasar } from 'quasar';
+import { EventNamesEnum } from 'src/lib/enums/events.enum';
+import { clearUIEffects } from 'src/lib/utils';
 
 defineComponent({
   name: 'add-lga-ward',
 });
 
+// refs
+// const isLoading = ref(false);
+const lgas = ref<LGAModel[]>([]);
+const lgaWardForm = ref<QForm>()
+
 // consts
-const lgas: LGAModel[] = [];
+const eventBus = inject('eventBus') as EventBus;
+const $q = useQuasar();
+
+// variable
+let postLgaTimer: NodeJS.Timeout;
 
 // model
 const lgaWardModel = reactive(new LGAWardModel());
 
+// controllers
+LgaWardStreetHandler.handlePostLgaWard(eventBus, { onSuccess, onError });
+
 // computed
 asyncComputed(async () => {
+  console.log('this is the lgaWardId: ', lgaWardModel.lgaId);
   lgaWardModel.validate();
 });
 
-const lgaOptions = lgas.map((lga) => {
-  return {
-    label: lga.name,
-    value: lga.id,
-  };
+const lgaOptions = computed(() => {
+  return lgas.value.map((lga) => {
+    return {
+      label: lga.name,
+      value: lga.id,
+    };
+  });
 });
 
 // methods
 function onSubmit() {
   //
-  console.log(lgaWardModel);
+  if (!isModelValid()) {
+    lgaWardModel.validate();
+    return;
+  }
+  $q.loading.show({
+    message: 'Submitting ...',
+  });
+  eventBus.emit(EventNamesEnum.POST_LGA_WARD, lgaWardModel);
+  postLgaTimer = setTimeout(() => {
+    $q.loading.hide();
+  }, 10000);
 }
+
+function onSuccess() {
+  // clear form
+  lgaWardModel.clearValues();
+  clearUIEffects({ loader: $q.loading, timer: postLgaTimer });
+}
+
+function onError() {
+  //
+  clearUIEffects({ loader: $q.loading, timer: postLgaTimer });
+}
+
+function isModelValid() {
+  return !lgaWardModel.errors?.length;
+}
+
+// lifecycle hooks
+onMounted(async () => {
+  // fetch lga model
+  lgas.value = await LgaWardStreetHandler.getLgas();
+});
+
+onBeforeUnmount(() => {
+  clearUIEffects({ loader: $q.loading, timer: postLgaTimer });
+});
 </script>

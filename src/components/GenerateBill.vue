@@ -94,7 +94,7 @@
 <script setup lang="ts">
 import { computed, defineComponent, ref } from 'vue';
 import TitleBadge from './TitleBadge.vue';
-import { BillingModel } from 'src/lib/models/GenerateBill.model';
+import { BillingModel } from 'src/models/GenerateBill.model';
 import { reactive } from 'vue';
 
 defineComponent({

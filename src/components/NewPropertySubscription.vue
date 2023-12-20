@@ -22,6 +22,9 @@
             outlined
             color="secondary"
             label-color="dark"
+            :rules="[
+              () => $validateField(newPropertySubscription, 'propertyName'),
+            ]"
           />
           <q-input
             label="Property Unit"
@@ -31,6 +34,9 @@
             outlined
             color="secondary"
             label-color="dark"
+            :rules="[
+              () => $validateField(newPropertySubscription, 'propertyUnit'),
+            ]"
           />
           <q-input
             label="Expected Monthly Cost"
@@ -65,6 +71,9 @@
               color="secondary"
               label-color="dark"
               :options="streetOptions"
+              :rules="[
+                () => $validateField(newPropertySubscription, 'streetId'),
+              ]"
             >
               <template v-slot:append>
                 <q-btn
@@ -111,6 +120,9 @@
               label-color="dark"
               :options="propertyTypesOptions"
               clearable
+              :rules="[
+                () => $validateField(newPropertySubscription, 'propertyTypeId'),
+              ]"
             >
               <template v-slot:append>
                 <q-btn
@@ -146,6 +158,10 @@
               label-color="dark"
               clearable
               :options="custodianOptions"
+              :rules="[
+                () =>
+                  $validateField(newPropertySubscription, 'custodianUserId'),
+              ]"
             >
               <template v-slot:append>
                 <q-btn
@@ -196,16 +212,19 @@
   <!-- </dialog-card> -->
 </template>
 <script setup lang="ts">
-import { computed, defineComponent, reactive } from 'vue';
-import { PropertySubscriptionModel } from '../lib/models/PropertySubscription.mode';
+import { computed, defineComponent, reactive, ref } from 'vue';
+import { PropertySubscriptionModel } from '../models/PropertySubscription.model';
 import TitleBadge from './TitleBadge.vue';
 import { inject } from 'vue';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
 import { EventBus, QSelect, QBtn } from 'quasar';
 import { PropertySubscriptionHandler } from '../lib/eventHandlers/PropertySubscription.handler';
-import { SubscriberModel } from 'src/lib/models/Subscriber.mode';
-import { PropertyTypeModel } from 'src/lib/models/PropertyType.model';
-import { StreetModel } from 'src/lib/models/Street.model';
+import { SubscriberModel } from '../models/Subscriber.model';
+import { PropertyTypeModel } from 'src/models/PropertyType.model';
+import { StreetModel } from 'src/models/Street.model';
+import { asyncComputed } from '@vueuse/core';
+import { onMounted } from 'vue';
+import { LgaWardStreetHandler } from 'src/lib/eventHandlers/LgaWardStreet.handler';
 
 defineComponent({
   name: 'new-property-subscription',
@@ -224,7 +243,7 @@ const eventBus = inject('eventBus') as EventBus;
 PropertySubscriptionHandler.postSubscription(eventBus);
 const subscribers: SubscriberModel[] = [];
 const proertytypes: PropertyTypeModel[] = [];
-const streets: StreetModel[] = [];
+const streets = ref<StreetModel[]>([]);
 
 // refs
 
@@ -251,12 +270,16 @@ const propertyTypesOptions = computed(() => {
 });
 
 const streetOptions = computed(() => {
-  return streets.map((street) => {
+  return streets.value.map((street) => {
     return {
       label: street.name,
       value: street.id,
     };
   });
+});
+
+asyncComputed(async () => {
+  newPropertySubscription.validate();
 });
 
 // methods
@@ -273,4 +296,9 @@ function onSelecButtonClicked(
 ) {
   emit(eventNameToEmit as unknown as never);
 }
+
+onMounted(async () => {
+  //
+  streets.value = await LgaWardStreetHandler.getStreets()
+});
 </script>

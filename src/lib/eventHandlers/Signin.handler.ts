@@ -1,8 +1,8 @@
 import { EventBus, Notify } from 'quasar';
 import { EventNamesEnum } from '../enums/events.enum';
 import useAuthStore from 'src/stores/auth-store';
-import { requestSignin } from '../requests/auth-request';
-import SigninModel from '../models/Signin.model';
+import { requestSignin } from '../requests/auth.request';
+import SigninModel from '../../models/Signin.model';
 
 export class SigninEventHandler {
   static async handle(

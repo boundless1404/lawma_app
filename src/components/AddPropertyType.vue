@@ -48,7 +48,7 @@
 </template>
 <script setup lang="ts">
 import { asyncComputed } from '@vueuse/core';
-import { PropertyTypeModel } from 'src/lib/models/PropertyType.model';
+import { PropertyTypeModel } from 'src/models/PropertyType.model';
 import { reactive } from 'vue';
 import ModalPopupClose from '../components/ModalPopupClose.vue';
 import TitleBadge from '../components/TitleBadge.vue';

@@ -1,6 +1,6 @@
 import { EventBus } from 'quasar';
 import { EventNamesEnum } from '../enums/events.enum';
-import { PropertySubscriptionModel } from '../models/PropertySubscription.mode';
+import { PropertySubscriptionModel } from '../../models/PropertySubscription.model';
 
 export class PropertySubscriptionHandler {
   static async postSubscription(eventSource: EventBus) {

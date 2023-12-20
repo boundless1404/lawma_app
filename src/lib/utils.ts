@@ -1,4 +1,5 @@
-import { BaseModel } from './models/base.model';
+import { Loading } from 'quasar';
+import { BaseModel } from '../models/base.model';
 
 export function validateField(model: BaseModel, name: string) {
   const error = model.errors?.find((error) => error.property === name);
@@ -20,4 +21,12 @@ export function getHighestZIndex() {
   }
   // console.log('current heighest z-index: ', highestZIndex);
   return highestZIndex;
+}
+
+export function clearUIEffects({
+  loader,
+  timer,
+}: { loader?: Loading; timer?: NodeJS.Timeout } = {}) {
+  loader && loader.hide();
+  timer && clearTimeout(timer);
 }
