@@ -29,6 +29,9 @@ export class SubscriberModel extends BaseModel {
   @IsNotEmpty({ message: 'Phone number is required' })
   phone: string;
 
-  // TODO: hard code value to nigeria phone code id
+  @IsNotEmpty({ message: 'Phone code is required' })
   phoneCodeId: string;
+
+  @IsOptional()
+  password: string;
 }

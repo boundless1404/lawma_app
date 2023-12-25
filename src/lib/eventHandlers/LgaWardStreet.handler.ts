@@ -31,8 +31,6 @@ export class LgaWardStreetHandler {
         Notify.create({
           message: 'Process was successful',
           color: 'positive',
-          textColor: 'white',
-          position: 'top',
         });
       } catch (error) {
         // callback
@@ -42,8 +40,8 @@ export class LgaWardStreetHandler {
         Notify.create({
           message: 'Post LGA failed',
           color: 'negative',
-          textColor: 'white',
-          position: 'top',
+          icon: 'warning',
+          timeout: 5000,
         });
       }
     });
@@ -56,8 +54,6 @@ export class LgaWardStreetHandler {
       Notify.create({
         message: 'Failed to fetch L.G.A.',
         color: 'negative',
-        textColor: 'white',
-        position: 'top',
         icon: 'warning',
         timeout: 5000,
       });
@@ -93,8 +89,8 @@ export class LgaWardStreetHandler {
         Notify.create({
           message: 'Post LGA failed',
           color: 'negative',
-          textColor: 'white',
-          position: 'top',
+          icon: 'warning',
+          timeout: 5000,
         });
         // console.log(error);
       }
@@ -108,8 +104,6 @@ export class LgaWardStreetHandler {
       Notify.create({
         message: 'Failed to fetch L.G.A.',
         color: 'negative',
-        textColor: 'white',
-        position: 'top',
         icon: 'warning',
         timeout: 5000,
       });

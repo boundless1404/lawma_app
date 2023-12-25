@@ -8,7 +8,7 @@
   </q-card-section>
   <!-- form -->
   <q-card-section class="q-px-md">
-    <form @submit.prevent>
+    <q-form @submit.prevent ref="subscriberForm">
       <div class="row justify-between">
         <!-- left side -->
         <div class="q-gutter-xl">
@@ -58,10 +58,12 @@
               label="Country Phone Code"
               filled
               outlined
+              label-color="dark"
               v-model="subscriberModel.phoneCodeId"
-              :style="{
-                zIndex: $getHighestZIndex(),
-              }"
+              :options="phoneCodeOptions"
+              emit-value
+              map-options
+              clearable
             >
             </q-select>
             <q-input
@@ -85,28 +87,53 @@
           @click="addSubscriber"
         />
       </div>
-    </form>
+    </q-form>
   </q-card-section>
 </template>
 <script setup lang="ts">
-import { defineComponent, reactive, ref } from 'vue';
+import {
+  computed,
+  defineComponent,
+  inject,
+  onBeforeUnmount,
+  reactive,
+  ref,
+} from 'vue';
 import TitleBadge from './TitleBadge.vue';
 import { SubscriberModel } from 'src/models/Subscriber.model';
 import { asyncComputed } from '@vueuse/core';
 import ModalPopupClose from '../components/ModalPopupClose.vue';
 import { onMounted } from 'vue';
-import { QInput } from 'quasar';
+import { EventBus, QForm, QInput, useQuasar } from 'quasar';
+import { PropertySubscriptionHandler } from 'src/lib/eventHandlers/PropertySubscription.handler';
+import { clearUIEffects, isModelValid } from 'src/lib/utils';
+import { EventNamesEnum } from 'src/lib/enums/events.enum';
+import { loadingTimeout } from 'src/lib/projectConstants';
 
 defineComponent({
   name: 'add-subscriber',
 });
+
+// consts
+const eventBus = inject('eventBus') as EventBus;
+const $q = useQuasar();
 
 // refs
 const formRef = ref<HTMLFormElement>();
 const inputRef = ref<QInput>();
 formRef.value?.focus();
 inputRef.value?.focus();
-console.log(inputRef.value?.focus);
+const phoneCodes = ref<{ name: string; id: string }[]>([]);
+const subscriberForm = ref<QForm>();
+
+// handlers
+PropertySubscriptionHandler.handlePostSubscriberUser(eventBus, {
+  onSuccess,
+  onError,
+});
+
+// variables
+let timer: NodeJS.Timeout;
 
 // models
 const subscriberModel = reactive(new SubscriberModel());
@@ -116,18 +143,51 @@ asyncComputed(async () => {
   await subscriberModel.validate();
 });
 
+const phoneCodeOptions = computed(() => {
+  return phoneCodes.value?.map((phoneCode) => {
+    return {
+      label: phoneCode.name,
+      value: phoneCode.id,
+    };
+  });
+});
+
 // methods
 function addSubscriber() {
   //
-  if (!subscriberModel.errors?.length) {
-    console.log(subscriberModel);
+  if (!isModelValid(subscriberModel)) {
+    subscriberForm.value?.validate();
+    return;
   }
+  eventBus.emit(EventNamesEnum.POST_SUBSCRIBER, subscriberModel);
+  $q.loading.show({
+    message: 'Submitting ...',
+  });
+  // add timeout to  remove loading in case of an error that prevents request to complete
+  timer = setTimeout(() => {
+    $q.loading.hide();
+  }, loadingTimeout);
+}
+
+function onSuccess() {
+  subscriberModel.clearValues();
+  clearUIEffects({ loader: $q.loading, timer: timer });
+}
+
+function onError() {
+  clearUIEffects({ loader: $q.loading, timer: timer });
 }
 
 // life cycle
-onMounted(() => {
+onMounted(async () => {
   console.log(inputRef.value?.focus);
   formRef.value?.focus();
   // inputRef.value?.;
+  phoneCodes.value = await PropertySubscriptionHandler.getPhoneCodes();
+});
+
+onBeforeUnmount(() => {
+  clearUIEffects({ loader: $q.loading, timer: timer });
+  eventBus.off(EventNamesEnum.POST_SUBSCRIBER);
 });
 </script>

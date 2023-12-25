@@ -44,17 +44,20 @@
           <div>
             <q-card rounded class="bg-accent">
               <q-card-section>
-                <q-table :rows="rows" bordered>
-                  <template v-slot:header="props">
+                <q-table
+                  :rows="rows"
+                  bordered
+                  :columns="propertySubscriptionColumns"
+                >
+                  <!-- <template v-slot:header="props">
                     <q-tr :props="props">
                       <q-th auto-width />
                       <q-th>Col 1</q-th>
                       <q-th>Col 2</q-th>
                     </q-tr>
-                  </template>
+                  </template> -->
                   <template v-slot:body="props">
                     <q-tr :props="props">
-                      <q-td auto-width>*</q-td>
                       <q-td v-for="col in props.cols" :key="col.name">{{
                         col.value
                       }}</q-td>
@@ -78,13 +81,6 @@
             <q-card rounded class="bg-accent">
               <q-card-section>
                 <q-table :rows="rows" bordered>
-                  <template v-slot:header="props">
-                    <q-tr :props="props">
-                      <q-th auto-width />
-                      <q-th>Col 1</q-th>
-                      <q-th>Col 2</q-th>
-                    </q-tr>
-                  </template>
                   <template v-slot:body="props">
                     <q-tr :props="props">
                       <q-td auto-width>*</q-td>
@@ -105,7 +101,7 @@
     <q-dialog v-model="showDialog">
       <!-- dialog content -->
       <!-- <div class="flex flex-center" style="height: 85vh; width: 85rem"> -->
-      <dialog-card height="auto">
+      <dialog-card height="auto" :width="`${dialogWidth}rem`">
         <!-- <component :is="currentDialogComponent" /> -->
         <new-property-subscription
           v-if="currentTab === NamedTabsEnum.PROPERTIES"
@@ -127,7 +123,7 @@
       transition-show="scale"
       transition-hide="scale"
     >
-      <dialog-card height="auto">
+      <dialog-card height="auto" :width="`${dialogWidth - 30}rem`">
         <add-subscriber
           v-if="secondaryModalValue === NamedSecondaryModal.ADD_SUBSCRIBER"
         />
@@ -147,7 +143,7 @@
       transition-show="scale"
       transition-hide="scale"
     >
-      <dialog-card height="auto">
+      <dialog-card height="auto" :width="`${dialogWidth}rem`">
         <add-lga v-if="remoteModalValue === NamedRemoteModal.ADD_LGA" />
         <add-lga-ward
           v-else-if="remoteModalValue === NamedRemoteModal.ADD_LGA_WARD"
@@ -158,8 +154,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { getCssVar } from 'quasar';
-import { computed, inject } from 'vue';
+import { QTableColumn, getCssVar } from 'quasar';
+import { computed, inject, onMounted } from 'vue';
 import { ref } from 'vue';
 import NewPropertySubscription from '../components/NewPropertySubscription.vue';
 import GenerateBill from '../components/GenerateBill.vue';
@@ -171,36 +167,16 @@ import { EventBus } from 'quasar';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
 import AddLga from '../components/AddLga.vue';
 import AddLgaWard from '../components/AddLgaWard.vue';
+import { NamedTabsEnum } from '../lib/enums/template.enum';
+import { NamedSecondaryModal } from '../lib/enums/template.enum';
+import { NamedRemoteModal } from '../lib/enums/template.enum';
+import { PropertySubscriptionHandler } from 'src/lib/eventHandlers/PropertySubscription.handler';
+import { PropertySubscription } from 'src/lib/types/types';
 
 // consts
 const lightPageColor = getCssVar('light-page') || '#ffffff';
 const eventBus = inject('eventBus') as EventBus;
-
-enum NamedTabsEnum {
-  PROPERTIES = 'Properties',
-  BILLINGS = 'Billings',
-}
-enum NamedSecondaryModal {
-  ADD_SUBSCRIBER,
-  ADD_STREET,
-  ADD_PROPERTY_TYPE,
-}
-
-enum NamedRemoteModal {
-  ADD_LGA,
-  ADD_LGA_WARD,
-}
-
-const rows = [
-  {
-    col1: 'This is col 1',
-    col2: 'This is col 2',
-  },
-  {
-    col1: 'This is col 1',
-    col2: 'This is col 2',
-  },
-];
+const dialogWidth = 80;
 const months: { [key: string]: string } = {
   '1': 'January',
   '2': 'February',
@@ -216,6 +192,44 @@ const months: { [key: string]: string } = {
   '12': 'December',
 };
 const monthNow = months[new Date().getMonth() + 1];
+const propertySubscriptionColumns: QTableColumn[] = [
+  {
+    field: 'propertySubscriptionId',
+    label: 'Property Subscription Id',
+    name: 'propertySubscriptionId',
+    align: 'left',
+  },
+  {
+    field: 'propertyName',
+    label: 'Property Name',
+    name: 'propertyName',
+    align: 'left',
+  },
+  {
+    field: 'oldCode',
+    label: 'Old Code',
+    name: 'oldCode',
+    align: 'left',
+  },
+  {
+    field: 'streetNumber',
+    label: 'Street Number',
+    name: 'streetNumber',
+    align: 'left',
+  },
+  {
+    field: 'streetName',
+    label: 'Street Name',
+    name: 'streetName',
+    align: 'left',
+  },
+  {
+    field: 'arrears',
+    label: 'Arrears',
+    name: 'arrears',
+    align: 'left',
+  },
+];
 
 // refs
 const currentTab = ref<NamedTabsEnum>(NamedTabsEnum.PROPERTIES);
@@ -225,9 +239,9 @@ const showSecondaryDialog = ref(false);
 const showRemotelyTriggeredDialog = ref(false);
 const secondaryModalValue = ref(NamedSecondaryModal.ADD_SUBSCRIBER);
 const remoteModalValue = ref(NamedRemoteModal.ADD_LGA);
+const propertySubscriptionTableModel = ref<PropertySubscription[]>();
 
 // computed
-
 const currentTabButtonAction = computed(() => {
   const tabActions = {
     [NamedTabsEnum.PROPERTIES]: 'Add New Property',
@@ -237,15 +251,18 @@ const currentTabButtonAction = computed(() => {
   return tabActions[currentTab.value];
 });
 
-// const currentDialogComponent = computed(() => {
-//   const dialogComponents = {
-//     [NamedTabsEnum.PROPERTIES]: NewPropertySubscription,
-//     [NamedTabsEnum.BILLINGS]: GenerateBill,
-//   };
-
-//   return dialogComponents[currentTab.value];
-// });
-
+const rows = computed(() => {
+  return propertySubscriptionTableModel.value?.map((sub) => {
+    return {
+      propertySubscriptionId: sub.propertySubscriptionId,
+      propertyName: sub.propertySubscriptionName,
+      oldCode: sub.oldCode,
+      streetNumber: sub.streetNumber,
+      streetName: sub.streetName,
+      arrears: sub.arrears,
+    };
+  });
+});
 // methods
 function toggleDialog() {
   showDialog.value = !showDialog.value;
@@ -264,5 +281,11 @@ eventBus.on(EventNamesEnum.TRIGGER_REMOTE_MODAL_LGA, () => {
 eventBus.on(EventNamesEnum.TRIGGER_REMOTE_MODAL_LGA_WARD, () => {
   remoteModalValue.value = NamedRemoteModal.ADD_LGA_WARD;
   showRemotelyTriggeredDialog.value = true;
+});
+
+// life cycle hooks
+onMounted(async () => {
+  propertySubscriptionTableModel.value =
+    await PropertySubscriptionHandler.getSubscriptions();
 });
 </script>

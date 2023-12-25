@@ -41,7 +41,8 @@ import { asyncComputed } from '@vueuse/core';
 import { LgaWardStreetHandler } from 'src/lib/eventHandlers/LgaWardStreet.handler';
 import { EventBus, useQuasar } from 'quasar';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
-import { clearUIEffects } from 'src/lib/utils';
+import { clearUIEffects, isModelValid } from 'src/lib/utils';
+import { loadingTimeout } from 'src/lib/projectConstants';
 
 defineComponent({
   name: 'add-lga',
@@ -68,14 +69,14 @@ asyncComputed(async () => {
 // methods
 function onSubmit() {
   //
-  if (!isModelValid()) return;
+  if (!isModelValid(lgaModel)) return;
   $q.loading.show({
     message: 'Submitting ...',
   });
   eventBus.emit(EventNamesEnum.POST_LGA, lgaModel);
   postLgaTimer = setTimeout(() => {
     $q.loading.hide();
-  }, 10000);
+  }, loadingTimeout);
 }
 
 function onSuccess() {
@@ -88,12 +89,13 @@ function onError() {
   clearUIEffects({ loader: $q.loading, timer: postLgaTimer });
 }
 
-function isModelValid() {
-  return !lgaModel.errors?.length;
-}
-
 // lifecycle hooks
 onBeforeUnmount(() => {
   clearUIEffects({ loader: $q.loading, timer: postLgaTimer });
+});
+
+// remove event listener
+onBeforeUnmount(() => {
+  eventBus.off(EventNamesEnum.POST_LGA);
 });
 </script>

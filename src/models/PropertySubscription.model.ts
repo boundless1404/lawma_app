@@ -24,7 +24,7 @@ export class PropertySubscriptionModel extends BaseModel {
   oldCode: string;
 
   @IsNotEmpty({ message: 'Please, select a custiodian' })
-  custodianUserId: string;
+  propertySubscriberProfileId: string;
 
   @IsBoolean()
   isOwner = false;

@@ -73,7 +73,8 @@ import { defineComponent } from 'vue';
 import { LgaWardStreetHandler } from 'src/lib/eventHandlers/LgaWardStreet.handler';
 import { EventBus, QForm, useQuasar } from 'quasar';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
-import { clearUIEffects } from 'src/lib/utils';
+import { clearUIEffects, isModelValid } from 'src/lib/utils';
+import { loadingTimeout } from 'src/lib/projectConstants';
 
 defineComponent({
   name: 'add-lga-ward',
@@ -82,7 +83,7 @@ defineComponent({
 // refs
 // const isLoading = ref(false);
 const lgas = ref<LGAModel[]>([]);
-const lgaWardForm = ref<QForm>()
+const lgaWardForm = ref<QForm>();
 
 // consts
 const eventBus = inject('eventBus') as EventBus;
@@ -115,7 +116,7 @@ const lgaOptions = computed(() => {
 // methods
 function onSubmit() {
   //
-  if (!isModelValid()) {
+  if (!isModelValid(lgaWardModel)) {
     lgaWardModel.validate();
     return;
   }
@@ -125,7 +126,7 @@ function onSubmit() {
   eventBus.emit(EventNamesEnum.POST_LGA_WARD, lgaWardModel);
   postLgaTimer = setTimeout(() => {
     $q.loading.hide();
-  }, 10000);
+  }, loadingTimeout);
 }
 
 function onSuccess() {
@@ -137,10 +138,6 @@ function onSuccess() {
 function onError() {
   //
   clearUIEffects({ loader: $q.loading, timer: postLgaTimer });
-}
-
-function isModelValid() {
-  return !lgaWardModel.errors?.length;
 }
 
 // lifecycle hooks

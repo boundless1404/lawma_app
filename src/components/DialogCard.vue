@@ -2,6 +2,7 @@
   <q-card
     :style="{
       width: width,
+      maxWidth: maxWidth,
       height: height,
       backgroundColor: $getColor(bgColor),
     }"
@@ -19,11 +20,13 @@ export interface DialogCardProps {
   width?: string;
   height?: string;
   bgColor?: string;
+  maxWidth?: string;
 }
 
 withDefaults(defineProps<DialogCardProps>(), {
   width: '100%',
   height: '100%',
   bgColor: 'accent',
+  maxWidth: '80rem',
 });
 </script>

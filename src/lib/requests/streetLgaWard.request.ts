@@ -5,7 +5,7 @@ import { LGAWardModel } from 'src/models/lgaWard.model';
 import { StreetModel } from 'src/models/Street.model';
 
 export async function requestPostLga(lga: LGAModel) {
-  const serverResponse = await api.post(UrlPathsEnum.POST_LGA, lga);
+  const serverResponse = await api.post(UrlPathsEnum.LGA, lga);
   if (serverResponse.status === 201) {
     const responseBody = serverResponse.data as LGAModel;
     return responseBody;
@@ -17,7 +17,7 @@ export async function requestPostLga(lga: LGAModel) {
 }
 
 export async function requestPostLgaWard(lgaWard: LGAWardModel) {
-  const serverResponse = await api.post(UrlPathsEnum.POST_LGA_WARD, lgaWard);
+  const serverResponse = await api.post(UrlPathsEnum.LGA_WARD, lgaWard);
   if (serverResponse.status === 201) {
     const responseBody = serverResponse.data as LGAWardModel;
     return responseBody;
@@ -29,7 +29,7 @@ export async function requestPostLgaWard(lgaWard: LGAWardModel) {
 }
 
 export async function requestPostStreet(streetModel: StreetModel) {
-  const serverResponse = await api.post(UrlPathsEnum.POST_STREET, streetModel);
+  const serverResponse = await api.post(UrlPathsEnum.STREET, streetModel);
   if (serverResponse.status === 201) {
     const responseBody = serverResponse.data as StreetModel;
     return responseBody;
@@ -41,7 +41,7 @@ export async function requestPostStreet(streetModel: StreetModel) {
 }
 
 export async function requestGetLGAs({ name }: { name?: string } = {}) {
-  const response = await api.get(UrlPathsEnum.GET_LGAs, { params: { name } });
+  const response = await api.get(UrlPathsEnum.LGA, { params: { name } });
   return response.data;
 }
 
@@ -49,7 +49,7 @@ export async function requestGetLgaWards({
   name,
   lgaId,
 }: { name?: string; lgaId?: string } = {}) {
-  const response = await api.get(UrlPathsEnum.POST_LGA_WARD, {
+  const response = await api.get(UrlPathsEnum.LGA_WARD, {
     params: { name, lgaId },
   });
   return response.data;
@@ -59,7 +59,7 @@ export async function requestGetStreets({
   name,
   lgaWardId,
 }: { name?: string; lgaWardId?: string } = {}) {
-  const response = await api.get(UrlPathsEnum.GET_STREETS, {
+  const response = await api.get(UrlPathsEnum.STREET, {
     params: { name, lgaWardId },
   });
   return response.data;

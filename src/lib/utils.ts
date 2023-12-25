@@ -30,3 +30,7 @@ export function clearUIEffects({
   loader && loader.hide();
   timer && clearTimeout(timer);
 }
+
+export function isModelValid(model: BaseModel) {
+  return !model.errors?.length;
+}

@@ -126,6 +126,12 @@ module.exports = configure(function (/* ctx */) {
         loading: {
           spinnerColor: 'primary',
         },
+        notify: {
+          position: 'top',
+          timeout: 3000,
+          textColor: 'white',
+          closeBtn: true,
+        },
       },
 
       // iconSet: 'material-icons', // Quasar icon set

@@ -5,16 +5,18 @@
   </q-card-section>
   <q-card-section>
     <!-- form -->
-    <form
+    <q-form
       class="q-pa-md"
-      :style="{ height: '100%', width: '100%' }"
-      @submit.prevent=""
+      :style="{ height: '100%' }"
+      @submit.prevent
+      ref="propertySubscriptionForm"
     >
       <!-- top -->
       <div class="row justify-between">
         <!-- left - form - side -->
         <div class="q-gutter-xl">
           <q-input
+            :style="inputStyle"
             label="Property Name"
             type="text"
             v-model="newPropertySubscription.propertyName"
@@ -27,6 +29,7 @@
             ]"
           />
           <q-input
+            :style="inputStyle"
             label="Property Unit"
             type="text"
             v-model="newPropertySubscription.propertyUnit"
@@ -39,6 +42,7 @@
             ]"
           />
           <q-input
+            :style="inputStyle"
             label="Expected Monthly Cost"
             type="text"
             v-model="newPropertySubscription.expectedMonthlyCost"
@@ -50,6 +54,7 @@
             <q-tooltip>Expected Monthly Cost</q-tooltip>
           </q-input>
           <q-input
+            :style="inputStyle"
             label="Old Code"
             type="text"
             v-model="newPropertySubscription.oldCode"
@@ -61,7 +66,7 @@
         </div>
         <!-- right - form - side -->
         <div class="q-gutter-xl">
-          <div class="row" style="width: 20rem">
+          <div class="row" :style="selectStyle">
             <q-select
               style="width: 70%"
               label="Street"
@@ -74,6 +79,9 @@
               :rules="[
                 () => $validateField(newPropertySubscription, 'streetId'),
               ]"
+              clearable
+              emit-value
+              map-options
             >
               <template v-slot:append>
                 <q-btn
@@ -109,7 +117,7 @@
               ><q-tooltip>Street Number</q-tooltip></q-input
             >
           </div>
-          <div :style="{ width: '20rem' }">
+          <div :style="selectStyle">
             <q-select
               style="width: 100%"
               label="Property Type"
@@ -123,6 +131,8 @@
               :rules="[
                 () => $validateField(newPropertySubscription, 'propertyTypeId'),
               ]"
+              emit-value
+              map-options
             >
               <template v-slot:append>
                 <q-btn
@@ -147,21 +157,26 @@
               </template>
             </q-select>
           </div>
-          <div :style="{ width: '20rem' }">
+          <div :style="selectStyle">
             <q-select
               style="width: 100%"
               label="Custodian"
               filled
               outlined
-              v-model="newPropertySubscription.custodianUserId"
+              v-model="newPropertySubscription.propertySubscriberProfileId"
               color="secondary"
               label-color="dark"
               clearable
               :options="custodianOptions"
               :rules="[
                 () =>
-                  $validateField(newPropertySubscription, 'custodianUserId'),
+                  $validateField(
+                    newPropertySubscription,
+                    'propertySubscriberProfileId'
+                  ),
               ]"
+              emit-value
+              map-options
             >
               <template v-slot:append>
                 <q-btn
@@ -203,21 +218,28 @@
           rounded
           color="primary"
           type="submit"
-          @click="onSubmit"
+          @click.prevent="onSubmit"
         ></q-btn>
       </div>
       <!-- down -->
-    </form>
+    </q-form>
   </q-card-section>
   <!-- </dialog-card> -->
 </template>
 <script setup lang="ts">
-import { computed, defineComponent, reactive, ref } from 'vue';
+import {
+  StyleValue,
+  computed,
+  defineComponent,
+  onBeforeUnmount,
+  reactive,
+  ref,
+} from 'vue';
 import { PropertySubscriptionModel } from '../models/PropertySubscription.model';
 import TitleBadge from './TitleBadge.vue';
-import { inject } from 'vue';
+import { inject, watch } from 'vue';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
-import { EventBus, QSelect, QBtn } from 'quasar';
+import { EventBus, QSelect, QBtn, useQuasar, QForm } from 'quasar';
 import { PropertySubscriptionHandler } from '../lib/eventHandlers/PropertySubscription.handler';
 import { SubscriberModel } from '../models/Subscriber.model';
 import { PropertyTypeModel } from 'src/models/PropertyType.model';
@@ -225,6 +247,8 @@ import { StreetModel } from 'src/models/Street.model';
 import { asyncComputed } from '@vueuse/core';
 import { onMounted } from 'vue';
 import { LgaWardStreetHandler } from 'src/lib/eventHandlers/LgaWardStreet.handler';
+import { clearUIEffects, isModelValid } from 'src/lib/utils';
+import { loadingTimeout } from 'src/lib/projectConstants';
 
 defineComponent({
   name: 'new-property-subscription',
@@ -238,21 +262,35 @@ const emit = defineEmits<{
 
 // consts
 const eventBus = inject('eventBus') as EventBus;
+const selectStyle: StyleValue = {
+  width: '35rem',
+};
+const inputStyle: StyleValue = {
+  width: '30rem',
+};
+const $q = useQuasar();
 
 // initializers
-PropertySubscriptionHandler.postSubscription(eventBus);
-const subscribers: SubscriberModel[] = [];
-const proertytypes: PropertyTypeModel[] = [];
+PropertySubscriptionHandler.handlePostSubscription(eventBus, {
+  onSuccess,
+  onError,
+});
+const subscribers = ref<SubscriberModel[]>([]);
+const propertyTypes = ref<PropertyTypeModel[]>([]);
 const streets = ref<StreetModel[]>([]);
 
+// variables
+let timer: NodeJS.Timeout;
+
 // refs
+const propertySubscriptionForm = ref<QForm>();
 
 // model
 const newPropertySubscription = reactive(new PropertySubscriptionModel());
 
 // computed
 const custodianOptions = computed(() => {
-  return subscribers.map((subscriber) => {
+  return subscribers.value.map((subscriber) => {
     return {
       label: subscriber.firstName + ' ' + subscriber.lastName,
       value: subscriber.id,
@@ -261,9 +299,9 @@ const custodianOptions = computed(() => {
 });
 
 const propertyTypesOptions = computed(() => {
-  return proertytypes.map((propertytype) => {
+  return propertyTypes.value.map((propertytype) => {
     return {
-      label: propertytype.name,
+      label: `${propertytype.name} - ${propertytype.unitPrice}`,
       value: propertytype.id,
     };
   });
@@ -284,11 +322,33 @@ asyncComputed(async () => {
 
 // methods
 function onSubmit() {
-  console.log('Submitted');
+  // validate
+  if (!isModelValid(newPropertySubscription)) {
+    console.log('the following errors exist', newPropertySubscription.errors);
+    propertySubscriptionForm.value?.validate();
+    return;
+  }
+  $q.loading.show({
+    message: 'Submitting ...',
+  });
   eventBus.emit(
     EventNamesEnum.NEW_PROPERTY_SUBSCRIPTION,
     newPropertySubscription
   );
+
+  timer = setTimeout(() => {
+    $q.loading.hide();
+  }, loadingTimeout);
+}
+
+function onSuccess() {
+  //clear form
+  newPropertySubscription.clearValues();
+  clearUIEffects({ loader: $q.loading, timer });
+}
+
+function onError() {
+  clearUIEffects({ loader: $q.loading, timer });
 }
 
 function onSelecButtonClicked(
@@ -297,8 +357,38 @@ function onSelecButtonClicked(
   emit(eventNameToEmit as unknown as never);
 }
 
+// watcher
+watch(
+  [
+    () => newPropertySubscription.propertyTypeId,
+    () => newPropertySubscription.propertyUnit,
+  ],
+  ([newValue, propertyUnit]) => {
+    if (newValue && propertyUnit) {
+      const propertyType = propertyTypes.value.find(
+        (prop) => prop.id === newValue
+      );
+
+      newPropertySubscription.expectedMonthlyCost = String(
+        Number(propertyType?.unitPrice) * propertyUnit
+      );
+      return newPropertySubscription.expectedMonthlyCost;
+    }
+  }
+);
+
 onMounted(async () => {
   //
-  streets.value = await LgaWardStreetHandler.getStreets()
+  try {
+    streets.value = await LgaWardStreetHandler.getStreets();
+    propertyTypes.value = await PropertySubscriptionHandler.getPropertyTypes();
+    subscribers.value = await PropertySubscriptionHandler.getSubscriberUsers();
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+onBeforeUnmount(() => {
+  eventBus.off(EventNamesEnum.NEW_PROPERTY_SUBSCRIPTION);
 });
 </script>

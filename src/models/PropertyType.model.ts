@@ -1,4 +1,10 @@
-import { IsNotEmpty, MaxLength, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumberString,
+  MaxLength,
+  Min,
+  MinLength,
+} from 'class-validator';
 import { BaseModel } from './base.model';
 
 export class PropertyTypeModel extends BaseModel {
@@ -10,5 +16,6 @@ export class PropertyTypeModel extends BaseModel {
   name: string;
 
   @IsNotEmpty({ message: 'Property type unit price is required' })
+  @IsNumberString({}, { message: 'Please, type in numeric value.' })
   unitPrice: number;
 }

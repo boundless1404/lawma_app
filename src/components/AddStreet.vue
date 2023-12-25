@@ -132,7 +132,8 @@ import { defineComponent } from 'vue';
 import { EventBus, QForm, useQuasar } from 'quasar';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
 import { LgaWardStreetHandler } from 'src/lib/eventHandlers/LgaWardStreet.handler';
-import { clearUIEffects } from 'src/lib/utils';
+import { clearUIEffects, isModelValid } from 'src/lib/utils';
+import { loadingTimeout } from 'src/lib/projectConstants';
 
 defineComponent({
   name: 'add-street',
@@ -151,6 +152,7 @@ const $q = useQuasar();
 
 // refs
 const addStreetForm = ref<QForm>();
+const requesting = ref(false);
 
 // variables
 let postStreetTimer: NodeJS.Timeout;
@@ -186,18 +188,22 @@ asyncComputed(async () => {
 
 // methods
 function onSubmit() {
+  if (requesting.value) {
+    return;
+  }
   //
-  if (!isModelValid()) {
+  if (!isModelValid(streetModel)) {
     addStreetForm.value?.validate();
     return;
   }
+  requesting.value = true;
   $q.loading.show({
     message: 'Submitting ...',
   });
   eventBus.emit(EventNamesEnum.POST_STREET, streetModel);
   postStreetTimer = setTimeout(() => {
     $q.loading.hide();
-  }, 10000);
+  }, loadingTimeout);
 }
 
 function onSuccess() {
@@ -208,10 +214,6 @@ function onSuccess() {
 
 function onError() {
   clearUIEffects({ loader: $q.loading, timer: postStreetTimer });
-}
-
-function isModelValid() {
-  return !streetModel.errors?.length;
 }
 
 // events invocation
@@ -237,5 +239,10 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   clearUIEffects({ loader: $q.loading, timer: postStreetTimer });
+});
+
+// remove event listener
+onBeforeUnmount(() => {
+  eventBus.off(EventNamesEnum.POST_STREET);
 });
 </script>

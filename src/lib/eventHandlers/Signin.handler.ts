@@ -21,16 +21,14 @@ export class SigninEventHandler {
         Notify.create({
           message: 'Signin successful',
           color: 'positive',
-          textColor: 'white',
-          position: 'top',
         });
       } catch (error) {
         console.log(error);
         Notify.create({
           message: 'Signin failed',
           color: 'negative',
-          textColor: 'white',
-          position: 'top',
+          icon: 'warning',
+          timeout: 5000,
         });
       }
     });

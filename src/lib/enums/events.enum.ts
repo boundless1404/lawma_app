@@ -8,4 +8,6 @@ export enum EventNamesEnum {
   POST_LGA = 'post_lga',
   POST_LGA_WARD = 'post_lga_ward',
   POST_STREET = 'post_street',
+  POST_PROPERTY_TYPE = 'post_property_type',
+  POST_SUBSCRIBER = 'post_subscriber',
 }
