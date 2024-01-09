@@ -9,4 +9,6 @@ export enum UrlPathsEnum {
   PHONE_CODE = '/utils-billing/phone-code',
   SUBSCRIBER_USER = '/utils-billing/subscriber-user',
   SUBSCRIPTION = '/utils-billing/subscription',
+  BILLING = '/utils-billing/billing',
+  BILLING_ACCOUNT = '/utils-billing/billing-account/arrears',
 }

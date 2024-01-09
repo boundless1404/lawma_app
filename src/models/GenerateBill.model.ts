@@ -5,10 +5,7 @@ export class BillingModel extends BaseModel {
   @IsOptional()
   streetId: string;
 
-  @IsOptional()
-  propertyName: string;
-
-  @IsNotEmpty({ message: 'Please, write the property subscsription id' })
+  @IsNotEmpty({ message: 'Please, select the property subscsription' })
   propertySuscriptionId: string;
 
   @IsNotEmpty({ message: 'Please, select the month' })
@@ -16,4 +13,10 @@ export class BillingModel extends BaseModel {
 
   @IsNotEmpty({ message: 'Please, select the year' })
   year: string;
+
+  type: 'print' | 'generate';
+
+  forAllProperties: boolean;
+
+  forPropertiesOnStreet: boolean;
 }

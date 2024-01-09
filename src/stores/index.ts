@@ -1,5 +1,5 @@
-import { store } from 'quasar/wrappers'
-import { createPinia } from 'pinia'
+import { store } from 'quasar/wrappers';
+import { createPinia } from 'pinia';
 import { Router } from 'vue-router';
 import localforage from 'localforage';
 
@@ -33,13 +33,13 @@ declare module 'pinia' {
  */
 
 export default store((/* { ssrContext } */) => {
-  const pinia = createPinia()
+  const pinia = createPinia();
 
   // You can add Pinia plugins here
   // pinia.use(SomePiniaPlugin)
 
-  return pinia
-})
+  return pinia;
+});
 
 export type AuthUserData = {
   token?: string;
@@ -49,22 +49,23 @@ export type AuthUserData = {
     lastName: string;
     email: string;
     middleName?: string;
-  }
+  };
   profile?: {
     id: string;
     profileTypeId: string;
     profileType: ProfileTypes;
     companyProfileId?: string;
-  }
-}
+  };
+};
 
 export enum ProfileTypes {
   ENTITY_USER_PROFILE = 'entity_user_profile',
-  ENTITY_SUBSCRIBER_PROFILE = 'entity_subscriber_profile'
+  ENTITY_SUBSCRIBER_PROFILE = 'entity_subscriber_profile',
 }
 
 export enum StorageNamesEnum {
-  AUTH_USER_DATA = 'auth_user_data'
+  AUTH_USER_DATA = 'auth_user_data',
+  LGA_WARD_STREET = 'lga_ward_street',
 }
 
 export const storeforage = localforage;

@@ -243,12 +243,12 @@ import { EventBus, QSelect, QBtn, useQuasar, QForm } from 'quasar';
 import { PropertySubscriptionHandler } from '../lib/eventHandlers/PropertySubscription.handler';
 import { SubscriberModel } from '../models/Subscriber.model';
 import { PropertyTypeModel } from 'src/models/PropertyType.model';
-import { StreetModel } from 'src/models/Street.model';
 import { asyncComputed } from '@vueuse/core';
 import { onMounted } from 'vue';
-import { LgaWardStreetHandler } from 'src/lib/eventHandlers/LgaWardStreet.handler';
 import { clearUIEffects, isModelValid } from 'src/lib/utils';
 import { loadingTimeout } from 'src/lib/projectConstants';
+import useLgaWardStreetStore from 'src/stores/lga-ward-street';
+import { storeToRefs } from 'pinia';
 
 defineComponent({
   name: 'new-property-subscription',
@@ -275,15 +275,18 @@ PropertySubscriptionHandler.handlePostSubscription(eventBus, {
   onSuccess,
   onError,
 });
-const subscribers = ref<SubscriberModel[]>([]);
-const propertyTypes = ref<PropertyTypeModel[]>([]);
-const streets = ref<StreetModel[]>([]);
+
+/// store
+const LgaWardStreetStore = useLgaWardStreetStore();
 
 // variables
 let timer: NodeJS.Timeout;
 
 // refs
 const propertySubscriptionForm = ref<QForm>();
+const subscribers = ref<SubscriberModel[]>([]);
+const propertyTypes = ref<PropertyTypeModel[]>([]);
+const { streets } = storeToRefs(LgaWardStreetStore);
 
 // model
 const newPropertySubscription = reactive(new PropertySubscriptionModel());
@@ -308,7 +311,7 @@ const propertyTypesOptions = computed(() => {
 });
 
 const streetOptions = computed(() => {
-  return streets.value.map((street) => {
+  return streets?.value?.map((street) => {
     return {
       label: street.name,
       value: street.id,
@@ -380,7 +383,7 @@ watch(
 onMounted(async () => {
   //
   try {
-    streets.value = await LgaWardStreetHandler.getStreets();
+    streets?.value || LgaWardStreetStore.fetchServerData({ type: 'street' });
     propertyTypes.value = await PropertySubscriptionHandler.getPropertyTypes();
     subscribers.value = await PropertySubscriptionHandler.getSubscriberUsers();
   } catch (error) {

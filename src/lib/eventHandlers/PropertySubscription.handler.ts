@@ -52,7 +52,9 @@ export class PropertySubscriptionHandler {
     );
   }
 
-  static async getSubscriptions(query: { limit?: string; page?: string } = {}) {
+  static async getSubscriptions(
+    query: { limit?: string; page?: string; streetId?: string } = {}
+  ) {
     try {
       let limit: number | undefined;
       let page: number | undefined;
@@ -63,6 +65,7 @@ export class PropertySubscriptionHandler {
       const subscriptions = (await requestGetSubscription({
         limit,
         page,
+        streetId: query.streetId,
       })) as PropertySubscription[];
       return subscriptions;
     } catch (error) {

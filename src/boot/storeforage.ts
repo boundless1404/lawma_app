@@ -22,8 +22,9 @@ const forageSetItem = async <T>(
   callback?: (err: unknown) => void
 ) => {
   try {
-    console.log('this is the data before setItem: ', data);
-    const saveData = await storeforage.setItem(key, data);
+    const stringifiedData = JSON.stringify(data);
+    console.log('this is the data before setItem: ', stringifiedData);
+    const saveData = await storeforage.setItem(key, stringifiedData);
     console.log('this is the data after setItem: ', saveData);
   } catch (error) {
     console.log('this is the error from storeforage: ', error);
@@ -46,6 +47,14 @@ export default boot(async ({ app, redirect, router }) => {
     console.log('no authUserData found, initializing authUserData');
     await localforage.setItem(StorageNamesEnum.AUTH_USER_DATA, authUserData);
   }
+
+  const lgaWardStreet = await forageGetItem(StorageNamesEnum.LGA_WARD_STREET);
+
+  if (!lgaWardStreet) {
+    console.log('Initializing lgaWardStreet: ', lgaWardStreet);
+    await localforage.setItem(StorageNamesEnum.LGA_WARD_STREET, lgaWardStreet);
+  }
+
   // TODO: when landing page exist remove auth check for landing page
   console.log('this is the current route ', router.currentRoute.value.path);
   if (!['/auth/signin', '/'].includes(router.currentRoute.value.path)) {

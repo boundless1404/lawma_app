@@ -11,6 +11,7 @@ import {
 } from '../requests/streetLgaWard.request';
 import { LGAWardModel } from 'src/models/lgaWard.model';
 import { StreetModel } from 'src/models/Street.model';
+import useLgaWardStreetStore from 'src/stores/lga-ward-street';
 
 export class LgaWardStreetHandler {
   static async handlePostLga(
@@ -120,6 +121,7 @@ export class LgaWardStreetHandler {
     eventBus.on(EventNamesEnum.POST_STREET, async (street: StreetModel) => {
       try {
         await requestPostStreet(street);
+        await useLgaWardStreetStore().fetchServerData({ type: 'street' });
 
         // callback
         onSuccess && onSuccess();

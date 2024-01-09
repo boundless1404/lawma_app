@@ -69,24 +69,76 @@
           </div>
         </q-tab-panel>
         <q-tab-panel :name="NamedTabsEnum.BILLINGS">
-          <div :style="{ width: '100%' }" style="width: 10rem">
+          <div class="q-mb-lg" style="width: 20rem">
             <q-select
+              :style="{
+                width: '100%',
+              }"
               v-model="currentBIllingMonth"
               label="Month"
               filled
               outlined
+              label-color="dark"
+              :options="currentBillingMonthsOptions"
+              clearable
+              map-options
+              emit-value
             ></q-select>
           </div>
           <div>
             <q-card rounded class="bg-accent">
               <q-card-section>
-                <q-table :rows="rows" bordered>
+                <q-table
+                  bordered
+                  :columns="billingTableColumn"
+                  :rows="billingTabelRow"
+                  :visible-columns="billingTableVisibleColumns"
+                  table-header-class="text-bolder"
+                >
                   <template v-slot:body="props">
-                    <q-tr :props="props">
-                      <q-td auto-width>*</q-td>
-                      <q-td v-for="col in props.cols" :key="col.name">{{
-                        col.value
-                      }}</q-td>
+                    <q-tr
+                      :props="props"
+                      @mouseenter="hovering(props.rowIndex)"
+                      @mouseleave="hovering(-1)"
+                    >
+                      <q-td
+                        v-for="(col, index) in props.cols"
+                        :key="col.name"
+                        class="text-center"
+                        :style="{
+                          postion: 'relative',
+                        }"
+                      >
+                        <q-badge
+                          :label="col.value"
+                          class="text-bold"
+                          :style="{
+                            backgroundColor: 'transparent',
+                            color: `${$getColor('dark')}`,
+                          }"
+                        />
+                        <span
+                          v-if="index === props.cols.length - 1"
+                          v-show="rowIndex === props.rowIndex"
+                          :style="{
+                            position: 'absolute',
+                            top: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                            right: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                            zIndex: rowIndex === props.rowIndex ? '1' : '0',
+                          }"
+                        >
+                          <advance-table-menu
+                            :menu-items="billingTableMenuItems"
+                            @menuItemClickHandler="
+                              (menuItem) =>
+                                billingTableMenuItemClickHandler(
+                                  menuItem.label,
+                                  props.row.streetId
+                                )
+                            "
+                          />
+                        </span>
+                      </q-td>
                     </q-tr>
                   </template>
                 </q-table>
@@ -154,8 +206,8 @@
   </div>
 </template>
 <script setup lang="ts">
-import { QTableColumn, getCssVar } from 'quasar';
-import { computed, inject, onMounted } from 'vue';
+import { QTableColumn, getCssVar, useQuasar } from 'quasar';
+import { computed, inject, onMounted, watch, watchEffect } from 'vue';
 import { ref } from 'vue';
 import NewPropertySubscription from '../components/NewPropertySubscription.vue';
 import GenerateBill from '../components/GenerateBill.vue';
@@ -172,25 +224,34 @@ import { NamedSecondaryModal } from '../lib/enums/template.enum';
 import { NamedRemoteModal } from '../lib/enums/template.enum';
 import { PropertySubscriptionHandler } from 'src/lib/eventHandlers/PropertySubscription.handler';
 import { PropertySubscription } from 'src/lib/types/types';
+import { onBeforeMount } from 'vue';
+import { months } from 'src/lib/projectConstants';
+import { BillingAccountHandler } from 'src/lib/eventHandlers/BillingAccount.handler';
+import AdvanceTableMenu from 'src/components/AdvanceTableMenu.vue';
 
 // consts
+const $q = useQuasar();
 const lightPageColor = getCssVar('light-page') || '#ffffff';
 const eventBus = inject('eventBus') as EventBus;
 const dialogWidth = 80;
-const months: { [key: string]: string } = {
-  '1': 'January',
-  '2': 'February',
-  '3': 'March',
-  '4': 'April',
-  '5': 'May',
-  '6': 'June',
-  '7': 'July',
-  '8': 'August',
-  '9': 'September',
-  '10': 'October',
-  '11': 'November',
-  '12': 'December',
-};
+const billingTableMenuItems: {
+  label: string;
+  icon: string;
+  textColor?: string;
+  color?: string;
+}[] = [
+  {
+    label: 'View Details',
+    icon: 'visibility',
+    textColor: 'black',
+  },
+  {
+    label: 'Get Defaulters',
+    icon: 'paid',
+    textColor: 'black',
+  },
+];
+
 const monthNow = months[new Date().getMonth() + 1];
 const propertySubscriptionColumns: QTableColumn[] = [
   {
@@ -231,6 +292,41 @@ const propertySubscriptionColumns: QTableColumn[] = [
   },
 ];
 
+const billingTableColumn: QTableColumn[] = [
+  {
+    field: 'streetId',
+    name: 'streetId',
+    label: 'streetId',
+    align: 'center',
+  },
+  {
+    field: 'streetName',
+    label: 'Street Name',
+    name: 'streetName',
+    align: 'center',
+  },
+  {
+    field: 'arrears',
+    label: 'Arrears',
+    name: 'arrears',
+    align: 'center',
+  },
+  {
+    field: 'totalBilling',
+    label: 'Total Billing',
+    name: 'totalBilling',
+    align: 'center',
+  },
+  {
+    field: 'actions',
+    label: 'Actions',
+    name: 'actions',
+    align: 'center',
+  },
+];
+
+const billingTableVisibleColumns = ['streetName', 'arrears', 'totalBilling'];
+
 // refs
 const currentTab = ref<NamedTabsEnum>(NamedTabsEnum.PROPERTIES);
 const showDialog = ref(false);
@@ -240,8 +336,20 @@ const showRemotelyTriggeredDialog = ref(false);
 const secondaryModalValue = ref(NamedSecondaryModal.ADD_SUBSCRIBER);
 const remoteModalValue = ref(NamedRemoteModal.ADD_LGA);
 const propertySubscriptionTableModel = ref<PropertySubscription[]>();
+const rowIndex = ref(-1);
+let billingAccountArreas = ref<
+  {
+    streetName: string;
+    streetId: string;
+    arrears: string;
+    totalBilling: string;
+  }[]
+>([]);
 
 // computed
+const currentBillingMonthsOptions = computed(() => {
+  return Object.values(months).map((value) => value);
+});
 const currentTabButtonAction = computed(() => {
   const tabActions = {
     [NamedTabsEnum.PROPERTIES]: 'Add New Property',
@@ -263,7 +371,33 @@ const rows = computed(() => {
     };
   });
 });
+
+const billingTabelRow = computed(() =>
+  billingAccountArreas.value?.map((street) => {
+    return {
+      streetName: street.streetName,
+      arrears: street.arrears,
+      streetId: street.streetId,
+      totalBilling: street.totalBilling,
+    };
+  })
+);
+
 // methods
+function billingTableMenuItemClickHandler(type: string, payload?: unknown) {
+  if (payload) {
+    console.log('payload', payload);
+    if (type === 'View Details') {
+      // TODO: validate payload
+      eventBus.emit(EventNamesEnum.VIEW_BILLING_DETAILS, payload);
+    } else if (type === 'Get Defaulters') {
+      eventBus.emit(EventNamesEnum.GET_DEFAULTERS, payload);
+    }
+  }
+}
+function hovering(index: number) {
+  rowIndex.value = index;
+}
 function toggleDialog() {
   showDialog.value = !showDialog.value;
 }
@@ -283,7 +417,38 @@ eventBus.on(EventNamesEnum.TRIGGER_REMOTE_MODAL_LGA_WARD, () => {
   showRemotelyTriggeredDialog.value = true;
 });
 
+// watchers
+watchEffect(async () => {
+  if (currentTab.value === NamedTabsEnum.PROPERTIES) {
+    billingAccountArreas.value =
+      await BillingAccountHandler.getBillingAccountArrears({
+        page: 1,
+        limit: 5,
+      });
+  }
+});
+
+watch(currentBIllingMonth, async () => {
+  if (currentTab.value === NamedTabsEnum.BILLINGS) {
+    billingAccountArreas.value =
+      await BillingAccountHandler.getBillingAccountArrears({
+        page: 1,
+        limit: 5,
+        month: currentBIllingMonth.value,
+      });
+  }
+});
+
 // life cycle hooks
+onBeforeMount(() => {
+  $q.loading.show({
+    message: 'Please, wait ...',
+  });
+});
+
+onMounted(() => {
+  $q.loading.hide();
+});
 onMounted(async () => {
   propertySubscriptionTableModel.value =
     await PropertySubscriptionHandler.getSubscriptions();
