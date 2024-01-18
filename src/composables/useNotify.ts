@@ -1,10 +1,10 @@
 import { Notify } from 'quasar';
 
 export function useNotify({
-  type = 'postive',
+  type = 'positive',
   message,
 }: {
-  type?: 'postive' | 'negative' | 'warning' | 'info';
+  type?: 'positive' | 'negative' | 'warning' | 'info';
   message?: string;
 } = {}) {
   Notify.create({
@@ -13,6 +13,6 @@ export function useNotify({
         ? 'Process failed'
         : 'Process was successful',
     type,
-    timeout: type === 'postive' ? 300 : 5000,
+    timeout: type === 'positive' ? 300 : 5000,
   });
 }

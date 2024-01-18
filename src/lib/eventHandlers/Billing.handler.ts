@@ -5,6 +5,8 @@ import {
   requestGetBilling,
   requestPostBilling,
 } from '../requests/billing.request';
+import { requestApi } from '../requests/default.request';
+import { UrlPathsEnum } from '../enums/urlPaths.enum';
 
 export class BillingHandler {
   static async handGenerateBilling(
@@ -57,4 +59,5 @@ export class BillingHandler {
       });
     }
   }
+
 }

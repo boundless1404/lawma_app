@@ -2,7 +2,7 @@ import { api } from 'src/boot/axios';
 import { UrlPathsEnum } from '../enums/urlPaths.enum';
 
 export async function requestApi(
-  url: UrlPathsEnum,
+  url: UrlPathsEnum | string,
   method: 'get' | 'post' = 'get',
   payload: {
     body?: Record<string, unknown>;

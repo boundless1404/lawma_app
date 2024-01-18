@@ -10,5 +10,9 @@ export enum UrlPathsEnum {
   SUBSCRIBER_USER = '/utils-billing/subscriber-user',
   SUBSCRIPTION = '/utils-billing/subscription',
   BILLING = '/utils-billing/billing',
-  BILLING_ACCOUNT = '/utils-billing/billing-account/arrears',
+  BILLING_ACCOUNT_ARREARS = '/utils-billing/billing/account/arrears',
+  BILLING_ACCOUNT_DETAILS = '/utils-billing/billing/account/street/:streetId/detail',
+  BILLING_ACCOUNT_DEFAULTER = '/utils-billing/billing/account/street/:streetId/defaulter',
+  PAYMENT = '/utils-billing/payment',
+  DASHBOARD_METRICS = '/utils-billing/dashboard/metrics',
 }

@@ -44,13 +44,19 @@
       </q-card>
       <q-separator />
       <q-list class="q-mt-sm text-h6">
-        <q-item to="properties-billings">
+        <q-item to="/dashboard" :active-class="activePage === '/dashboard' ? 'bg-secondary text-black' : ''">
+          <q-icon name="dashboard" style="height: 3.5rem; width: 3.5rem"></q-icon>
+          <q-item-section>
+            <q-item-label>Dashboard</q-item-label>
+          </q-item-section>
+        </q-item>
+        <q-item to="properties-billings"  :active-class="activePage === '/properties-billings' ? 'bg-secondary text-black' : ''">
           <q-icon name="house" style="height: 3.5rem; width: 3.5rem"></q-icon>
           <q-item-section>
             <q-item-label>Properties And Billings </q-item-label>
           </q-item-section>
         </q-item>
-        <q-item to="/">
+        <q-item to="/payments"  :active-class="activePage === '/payments' ? 'bg-secondary text-black' : ''">
           <q-icon name="money" style="height: 3.5rem; width: 3.5rem"></q-icon>
           <q-item-section>
             <q-item-label>Payments</q-item-label>
@@ -60,14 +66,17 @@
     </q-drawer>
 
     <q-page-container>
-      <router-view />
+      <div style="overflow-y: hidden;">
+        <router-view />
+      </div>
+
     </q-page-container>
   </q-layout>
 </template>
 
 <script setup lang="ts">
 import { getCssVar, useMeta } from 'quasar';
-import { onMounted, ref } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import LawmaAppBadge from 'src/components/LawmaAppBadge.vue';
 import useAuthStore from 'src/stores/auth-store';
@@ -81,6 +90,12 @@ const authStore = useAuthStore();
 
 // refs
 const { token } = storeToRefs(authStore);
+
+// computed
+const activePage = computed(() => {
+  return router.currentRoute.value.path;
+});
+
 
 // methods
 function getRoutePath() {

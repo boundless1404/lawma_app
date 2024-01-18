@@ -1,5 +1,6 @@
 <template>
-  <div
+  <q-page>
+    <div
     :style="{
       backgroundColor: lightPageColor,
       height: '100vh',
@@ -48,6 +49,9 @@
                   :rows="rows"
                   bordered
                   :columns="propertySubscriptionColumns"
+                  :table-header-style="{
+                    backgroundColor: `${$getColor('secondary')}`,
+                  }"
                 >
                   <!-- <template v-slot:header="props">
                     <q-tr :props="props">
@@ -87,13 +91,20 @@
           </div>
           <div>
             <q-card rounded class="bg-accent">
+              <q-card-section v-show="billingTableToDisplay !== billingTables.billing">
+                  <q-btn icon="arrow_back" flat @click="billingTableToDisplay = billingTables.billing"/>
+              </q-card-section>
               <q-card-section>
                 <q-table
+                v-if="billingTableToDisplay === billingTables.billing"
                   bordered
                   :columns="billingTableColumn"
                   :rows="billingTabelRow"
                   :visible-columns="billingTableVisibleColumns"
                   table-header-class="text-bolder"
+                  :table-header-style="{
+                    backgroundColor: `${$getColor('secondary')}`,
+                  }"
                 >
                   <template v-slot:body="props">
                     <q-tr
@@ -142,6 +153,121 @@
                     </q-tr>
                   </template>
                 </q-table>
+                <!--  -->
+                <q-table v-else-if="billingTableToDisplay === billingTables.billingDefaulters"
+                bordered
+                :columns="billingDefaultersTableColumn"
+                :rows="billingDefaultersAndDetailsTableRows"
+                :visible-columns="billingDefaultersVisibleColumns"
+                table-header-class="text-bolder"
+                :table-header-style="{
+                    backgroundColor: `${$getColor('secondary')}`,
+                  }"
+                >
+                  <template v-slot:body="props">
+                    <q-tr
+                      :props="props"
+                      @mouseenter="hovering(props.rowIndex)"
+                      @mouseleave="hovering(-1)"
+                    >
+                      <q-td
+                        v-for="(col) in props.cols"
+                        :key="col.name"
+                        class="text-center"
+                        :style="{
+                          postion: 'relative',
+                        }"
+                      >
+                        <q-badge
+                          :label="col.value"
+                          class="text-bold"
+                          :style="{
+                            backgroundColor: 'transparent',
+                            color: `${$getColor('dark')}`,
+                          }"
+                        />
+                        <!-- <span
+                          v-if="index === props.cols.length - 1"
+                          v-show="rowIndex === props.rowIndex"
+                          :style="{
+                            position: 'absolute',
+                            top: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                            right: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                            zIndex: rowIndex === props.rowIndex ? '1' : '0',
+                          }"
+                        >
+                          <advance-table-menu
+                            :menu-items="billingTableMenuItems"
+                            @menuItemClickHandler="
+                              (menuItem) =>
+                                billingTableMenuItemClickHandler(
+                                  menuItem.label,
+                                  props.row.streetId
+                                )
+                            "
+                          />
+                        </span> -->
+                      </q-td>
+                    </q-tr>
+                    </template>
+                </q-table>
+                <q-table v-else-if="billingTableToDisplay === billingTables.billingDetails"
+                bordered
+                :columns="billingDetailsTableColumn"
+                :rows="billingDefaultersAndDetailsTableRows"
+                :visible-columns="billingDetailsVisibleColumns"
+                table-header-class="text-bolder"
+                :table-header-style="{
+                    backgroundColor: `${$getColor('secondary')}`,
+                  }"
+                >
+                <template v-slot:body="props">
+                    <q-tr
+                      :props="props"
+                      @mouseenter="hovering(props.rowIndex)"
+                      @mouseleave="hovering(-1)"
+                    >
+                      <q-td
+                        v-for="(col) in props.cols"
+                        :key="col.name"
+                        class="text-center"
+                        :style="{
+                          postion: 'relative',
+                        }"
+                      >
+                        <q-badge
+                          :label="col.value"
+                          class="text-bold"
+                          :style="{
+                            backgroundColor: 'transparent',
+                            color: `${$getColor('dark')}`,
+                          }"
+                        />
+                        <!-- <span
+                          v-if="index === props.cols.length - 1"
+                          v-show="rowIndex === props.rowIndex"
+                          :style="{
+                            position: 'absolute',
+                            top: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                            right: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                            zIndex: rowIndex === props.rowIndex ? '1' : '0',
+                          }"
+                        >
+                          <advance-table-menu
+                            :menu-items="billingTableMenuItems"
+                            @menuItemClickHandler="
+                              (menuItem) =>
+                                billingTableMenuItemClickHandler(
+                                  menuItem.label,
+                                  props.row.streetId
+                                )
+                            "
+                          />
+                        </span> -->
+                      </q-td>
+                    </q-tr>
+                    </template>
+                  </q-table>
               </q-card-section>
             </q-card>
           </div>
@@ -204,6 +330,7 @@
     </q-dialog>
     <!-- </div> -->
   </div>
+  </q-page>
 </template>
 <script setup lang="ts">
 import { QTableColumn, getCssVar, useQuasar } from 'quasar';
@@ -228,6 +355,7 @@ import { onBeforeMount } from 'vue';
 import { months } from 'src/lib/projectConstants';
 import { BillingAccountHandler } from 'src/lib/eventHandlers/BillingAccount.handler';
 import AdvanceTableMenu from 'src/components/AdvanceTableMenu.vue';
+import { onBeforeUnmount } from 'vue';
 
 // consts
 const $q = useQuasar();
@@ -325,7 +453,56 @@ const billingTableColumn: QTableColumn[] = [
   },
 ];
 
+const billingDefaultersTableColumn: QTableColumn[] = [
+{
+    field: 'streetName',
+    label: 'Street Name',
+    name: 'streetName',
+    align: 'center',
+  },
+  {
+    field: 'propertyName',
+    label: 'Property Name',
+    name: 'propertyName',
+    align: 'center',
+  },
+  {
+    field: 'currentBilling',
+    label: 'Current Billing',
+    name: 'currentBilling',
+    align: 'center',
+  },
+  {
+    field: 'arrears',
+    label: 'Arrears',
+    name: 'arrears',
+    align: 'center',
+  },
+]
+
+const billingDetailsTableColumn: QTableColumn[] = [
+...billingDefaultersTableColumn,
+  {
+    field: 'totalBilling',
+    label: 'Total Billing',
+    name: 'totalBilling',
+    align: 'center',
+  },
+];
+
 const billingTableVisibleColumns = ['streetName', 'arrears', 'totalBilling'];
+const billingDefaultersVisibleColumns = billingDefaultersTableColumn.map((col) => col.field);
+const billingDetailsVisibleColumns = [...billingDefaultersVisibleColumns, 'totalBilling'];
+
+const billingTables = {
+  billing: 'billing',
+  billingDetails: 'billingDetails',
+  billingDefaulters: 'defaulters',
+}
+
+// event handlers
+BillingAccountHandler.handleViewBillingDetails(eventBus, { onSuccess: onSuccessfulGettingBillingDetails});
+BillingAccountHandler.handleGetDefaulters(eventBus, { onSuccess: onSuccessfulGettingDefaulters});
 
 // refs
 const currentTab = ref<NamedTabsEnum>(NamedTabsEnum.PROPERTIES);
@@ -345,6 +522,15 @@ let billingAccountArreas = ref<
     totalBilling: string;
   }[]
 >([]);
+const billingTableToDisplay = ref('billing');
+const billingDefaultersAndDetailsTableRows = ref< {
+      streetName: string;
+      PropertySubscriptionId: string;
+      propertyName: string;
+      currentBilling: string;
+      arrears: number;
+      totalBilling?: string;
+    }[]>([])
 
 // computed
 const currentBillingMonthsOptions = computed(() => {
@@ -384,20 +570,50 @@ const billingTabelRow = computed(() =>
 );
 
 // methods
-function billingTableMenuItemClickHandler(type: string, payload?: unknown) {
-  if (payload) {
-    console.log('payload', payload);
+function billingTableMenuItemClickHandler(type: string, streetId?: string) {
+  if (streetId) {
+    console.log('payload', streetId);
     if (type === 'View Details') {
       // TODO: validate payload
-      eventBus.emit(EventNamesEnum.VIEW_BILLING_DETAILS, payload);
+      eventBus.emit(EventNamesEnum.VIEW_BILLING_DETAILS,
+      {streetId, billingMonth: currentBIllingMonth.value });
     } else if (type === 'Get Defaulters') {
-      eventBus.emit(EventNamesEnum.GET_DEFAULTERS, payload);
+      eventBus.emit(EventNamesEnum.GET_DEFAULTERS, {streetId});
     }
   }
 }
+
+function onSuccessfulGettingBillingDetails(payload: {
+      streetName: string;
+      PropertySubscriptionId: string;
+      propertyName: string;
+      currentBilling: string;
+      arrears: number;
+      totalBilling?: string;
+    }[]) {
+      //
+      billingTableToDisplay.value = billingTables.billingDetails;
+      billingDefaultersAndDetailsTableRows.value = payload;
+}
+
+function onSuccessfulGettingDefaulters(payload: {
+      streetName: string;
+      PropertySubscriptionId: string;
+      propertyName: string;
+      currentBilling: string;
+      arrears: number;
+      totalBilling?: string;
+    }[]) {
+      //
+      billingTableToDisplay.value = billingTables.billingDefaulters;
+      billingDefaultersAndDetailsTableRows.value = payload;
+
+}
+
 function hovering(index: number) {
   rowIndex.value = index;
 }
+
 function toggleDialog() {
   showDialog.value = !showDialog.value;
 }
@@ -449,8 +665,14 @@ onBeforeMount(() => {
 onMounted(() => {
   $q.loading.hide();
 });
+
 onMounted(async () => {
   propertySubscriptionTableModel.value =
     await PropertySubscriptionHandler.getSubscriptions();
 });
+
+onBeforeUnmount(async () => {
+  eventBus.off(EventNamesEnum.VIEW_BILLING_DETAILS);
+  eventBus.off(EventNamesEnum.GET_DEFAULTERS);
+})
 </script>
