@@ -1,5 +1,7 @@
 import { boot } from 'quasar/wrappers';
 import axios, { AxiosInstance } from 'axios';
+import { forageGetItem } from './storeforage';
+import { AuthUserData, StorageNamesEnum } from 'src/stores';
 
 declare module '@vue/runtime-core' {
   interface ComponentCustomProperties {
@@ -14,7 +16,16 @@ declare module '@vue/runtime-core' {
 // good idea to move this instance creation inside of the
 // "export default () => {}" function below (which runs individually
 // for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' });
+const authUserData = JSON.parse(
+  (await forageGetItem(StorageNamesEnum.AUTH_USER_DATA)) as string
+) as AuthUserData;
+const api = axios.create({
+  baseURL: 'http://localhost:5100/',
+  headers: {
+    'Content-Type': 'application/json',
+    Authorization: `Bearer ${authUserData?.token}`,
+  },
+});
 
 export default boot(({ app }) => {
   // for use inside Vue files (Options API) through this.$axios and this.$api
@@ -24,6 +35,7 @@ export default boot(({ app }) => {
   //       so you won't necessarily have to import axios in each vue file
 
   app.config.globalProperties.$api = api;
+
   // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
   //       so you can easily perform requests against your app's API
 });
