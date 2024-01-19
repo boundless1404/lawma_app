@@ -12,6 +12,7 @@ const { configure } = require('quasar/wrappers');
 const path = require('path');
 
 module.exports = configure(function (/* ctx */) {
+  require('dotenv').config({ override: true });
   return {
     eslint: {
       // fix: true,
@@ -60,7 +61,7 @@ module.exports = configure(function (/* ctx */) {
     // Full list of options: https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#build
     build: {
       target: {
-        browser: ['es2019', 'edge88', 'firefox78', 'chrome87', 'safari13.1'],
+        browser: ['es2022', 'edge89', 'firefox101', 'chrome89', 'safari15.3'],
         node: 'node16',
       },
 
@@ -73,7 +74,9 @@ module.exports = configure(function (/* ctx */) {
 
       // publicPath: '/',
       // analyze: true,
-      // env: {},
+      env: {
+        API_BASE_URL: process.env.API_BASE_URL,
+      },
       // rawDefine: {}
       // ignorePublicFolder: true,
       // minify: false,

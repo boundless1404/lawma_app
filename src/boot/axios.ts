@@ -20,7 +20,7 @@ const authUserData = JSON.parse(
   (await forageGetItem(StorageNamesEnum.AUTH_USER_DATA)) as string
 ) as AuthUserData;
 const api = axios.create({
-  baseURL: 'http://localhost:5100/',
+  baseURL: process.env.API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
     Authorization: `Bearer ${authUserData?.token}`,

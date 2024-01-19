@@ -9,7 +9,7 @@
     >
       <div
         class="flex column justify-evenly q-gutter-lg q-mb-xl"
-        :style="{ width: '72rem' }"
+        :style="{ width: '97.2rem' }"
       >
         <!-- first level metrics -->
         <div class="flex row justify-evenly" style="height: 10rem; width: 100%">
