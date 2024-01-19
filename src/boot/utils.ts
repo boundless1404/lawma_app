@@ -15,6 +15,15 @@ export default boot(({ app }) => {
   //   console.log('get color was called');
   //   return getCssVar(colorAlias);
   // };
+  // router.beforeEach((to, from, next) => {
+  //   console.log('this is the current route: ', to.path);
+  //   next(() => {
+  //     window.history.pushState(null, '', to.path);
+  //     window.onpopstate = () => {
+  //       next({ path: from.path, replace: true });
+  //     };
+  //   });
+  // });
 
   app.config.globalProperties.$validateField = validateField;
   app.config.globalProperties.$getHighestZIndex = getHighestZIndex;

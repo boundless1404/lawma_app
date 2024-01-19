@@ -22,35 +22,75 @@ export class BillingAccountHandler {
     }
   }
 
-  static async handleViewBillingDetails(eventSource: EventBus, {onSuccess, onError}: { onSuccess?: (response: any) => void; onError?: (error: unknown) => void} = {}) {
-    eventSource.on(EventNamesEnum.VIEW_BILLING_DETAILS, async ({streetId, billingMonth} : {streetId: string, billingMonth: string}) => {
-      //
-      try {
-        debugger; const billingDetails = await requestApi(UrlPathsEnum.BILLING_ACCOUNT_DETAILS.replace(':streetId', streetId), 'get', {
-          params: {
-            billingMonth,
-          },
-        })
+  static async handleViewBillingDetails(
+    eventSource: EventBus,
+    {
+      onSuccess,
+      onError,
+    }: {
+      onSuccess?: (response: any) => void;
+      onError?: (error: unknown) => void;
+    } = {}
+  ) {
+    eventSource.on(
+      EventNamesEnum.VIEW_BILLING_DETAILS,
+      async ({
+        streetId,
+        billingMonth,
+      }: {
+        streetId: string;
+        billingMonth: string;
+      }) => {
+        //
+        try {
+          const billingDetails = await requestApi(
+            UrlPathsEnum.BILLING_ACCOUNT_DETAILS.replace(':streetId', streetId),
+            'get',
+            {
+              params: {
+                billingMonth,
+              },
+            }
+          );
 
-        onSuccess?.(billingDetails);
-      } catch (error) {
-        onError?.(error);
-        useNotify({ type: 'negative' });
+          onSuccess?.(billingDetails);
+        } catch (error) {
+          onError?.(error);
+          useNotify({ type: 'negative' });
+        }
       }
-    })
+    );
   }
 
-  static async handleGetDefaulters(eventSource: EventBus, { onSuccess, onError } : { onSuccess?: (response: any) => void, onError?: (error: unknown ) => void } = {}) {
-    eventSource.on(EventNamesEnum.GET_DEFAULTERS, async ({streetId } : {streetId: string}) => {
-      //
-      try {
-        const defaulters = await requestApi(UrlPathsEnum.BILLING_ACCOUNT_DEFAULTER.replace(':streetId', streetId), 'get')
+  static async handleGetDefaulters(
+    eventSource: EventBus,
+    {
+      onSuccess,
+      onError,
+    }: {
+      onSuccess?: (response: any) => void;
+      onError?: (error: unknown) => void;
+    } = {}
+  ) {
+    eventSource.on(
+      EventNamesEnum.GET_DEFAULTERS,
+      async ({ streetId }: { streetId: string }) => {
+        //
+        try {
+          const defaulters = await requestApi(
+            UrlPathsEnum.BILLING_ACCOUNT_DEFAULTER.replace(
+              ':streetId',
+              streetId
+            ),
+            'get'
+          );
 
-        onSuccess?.(defaulters);
-      } catch (error) {
-        onError?.(error);
-        useNotify({ type: 'negative' });
+          onSuccess?.(defaulters);
+        } catch (error) {
+          onError?.(error);
+          useNotify({ type: 'negative' });
+        }
       }
-    });
+    );
   }
 }

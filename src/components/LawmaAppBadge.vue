@@ -6,7 +6,9 @@
       backgroundColor: 'transparent',
       padding: '1rem 0.5rem',
       color: $getColor(color),
+      cursor: 'pointer',
     }"
+    @click="$router.push({ path: '/auth/signin' })"
     >Lawma App</q-badge
   >
 </template>

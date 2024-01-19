@@ -2,7 +2,6 @@ import {
   IsNotEmpty,
   IsNumberString,
   MaxLength,
-  Min,
   MinLength,
 } from 'class-validator';
 import { BaseModel } from './base.model';
