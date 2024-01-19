@@ -36,6 +36,7 @@ module.exports = configure(function (/* ctx */) {
         server: false,
       },
       'eventBus',
+      'apexcharts',
       'storeforage',
     ],
 

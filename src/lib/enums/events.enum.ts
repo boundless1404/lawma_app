@@ -13,4 +13,5 @@ export enum EventNamesEnum {
   GENERATE_BILLING = 'generate_billing',
   VIEW_BILLING_DETAILS = 'view_billing_details',
   GET_DEFAULTERS = 'get_defaulters',
+  POST_PAYMENT = 'post_payment',
 }

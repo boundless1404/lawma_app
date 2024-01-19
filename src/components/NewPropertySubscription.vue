@@ -324,11 +324,12 @@ asyncComputed(async () => {
 });
 
 // methods
-function onSubmit() {
+async function onSubmit() {
   // validate
+  newPropertySubscription.validate();
   if (!isModelValid(newPropertySubscription)) {
     console.log('the following errors exist', newPropertySubscription.errors);
-    propertySubscriptionForm.value?.validate();
+    await propertySubscriptionForm.value?.validate();
     return;
   }
   $q.loading.show({

@@ -7,17 +7,24 @@ const routes: RouteRecordRaw[] = [
     children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
   },
   {
+    name: 'dashboard',
     path: '/dashboard',
     component: () => import('layouts/AuthenticatedLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    children: [{ path: '', component: () => import('pages/DashboardPage.vue') }],
   },
   {
+    name: 'properties-billings',
     path: '/properties-billings',
-    name: 'PropertiesBillings',
     component: () => import('layouts/AuthenticatedLayout.vue'),
     children: [
       { path: '', component: () => import('pages/PropertyBillingPage.vue') },
     ],
+  },
+  {
+    name: 'payments',
+    path: '/payments',
+    component: () => import('layouts/AuthenticatedLayout.vue'),
+    children: [{ path: '', component: () => import('pages/PaymentPage.vue') }],
   },
   {
     path: '/auth',

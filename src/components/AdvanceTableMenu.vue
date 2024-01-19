@@ -33,7 +33,7 @@ export interface AdvanceTableMenuProps {
     textColor?: string;
     color?: string;
   }[];
-  padding: string;
+  padding?: string;
 }
 
 defineEmits<{

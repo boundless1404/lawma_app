@@ -43,3 +43,14 @@ export interface PropertySubscription {
 }
 
 export type PropertySubscriptionArray = PropertySubscription[];
+
+export type PaymentRecord = {
+  id: string;
+  amount: string;
+  paymentDate: Date;
+  propertySubscriptionId: string;
+  payerName: string;
+  year: string;
+  month: string;
+  propertySubscriptionName: string;
+};
