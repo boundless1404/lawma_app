@@ -9,7 +9,7 @@
         <q-toolbar-title class="row justify-between">
           <q-badge
             v-if="pageTitle"
-            class="text-h5 bg-accent"
+            class="text-h6 bg-accent"
             :style="{
               padding: '0.5rem',
               color: getColor('dark'),
@@ -32,6 +32,7 @@
       side="left"
       bordered
       persistent
+      :width="240"
     >
       <!-- drawer content -->
       <q-card style="background-color: inherit">
@@ -43,20 +44,40 @@
         </q-card-section>
       </q-card>
       <q-separator />
-      <q-list class="q-mt-sm text-h6">
-        <q-item to="/dashboard" :active-class="activePage === '/dashboard' ? 'bg-secondary text-black' : ''">
-          <q-icon name="dashboard" style="height: 3.5rem; width: 3.5rem"></q-icon>
+      <q-list class="q-mt-sm">
+        <q-item
+          to="/dashboard"
+          :active-class="
+            activePage === '/dashboard' ? 'bg-secondary text-black' : ''
+          "
+        >
+          <q-icon
+            name="dashboard"
+            style="height: 3.5rem; width: 3.5rem"
+          ></q-icon>
           <q-item-section>
             <q-item-label>Dashboard</q-item-label>
           </q-item-section>
         </q-item>
-        <q-item to="properties-billings"  :active-class="activePage === '/properties-billings' ? 'bg-secondary text-black' : ''">
+        <q-item
+          to="properties-billings"
+          :active-class="
+            activePage === '/properties-billings'
+              ? 'bg-secondary text-black'
+              : ''
+          "
+        >
           <q-icon name="house" style="height: 3.5rem; width: 3.5rem"></q-icon>
           <q-item-section>
             <q-item-label>Properties And Billings </q-item-label>
           </q-item-section>
         </q-item>
-        <q-item to="/payments"  :active-class="activePage === '/payments' ? 'bg-secondary text-black' : ''">
+        <q-item
+          to="/payments"
+          :active-class="
+            activePage === '/payments' ? 'bg-secondary text-black' : ''
+          "
+        >
           <q-icon name="money" style="height: 3.5rem; width: 3.5rem"></q-icon>
           <q-item-section>
             <q-item-label>Payments</q-item-label>
@@ -66,10 +87,9 @@
     </q-drawer>
 
     <q-page-container>
-      <div style="overflow-y: hidden;">
+      <div style="overflow-y: hidden">
         <router-view />
       </div>
-
     </q-page-container>
   </q-layout>
 </template>
@@ -95,7 +115,6 @@ const { token } = storeToRefs(authStore);
 const activePage = computed(() => {
   return router.currentRoute.value.path;
 });
-
 
 // methods
 function getRoutePath() {
