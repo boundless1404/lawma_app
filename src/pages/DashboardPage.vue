@@ -9,7 +9,7 @@
     >
       <div
         class="flex column justify-evenly q-gutter-lg q-mb-xl"
-        :style="{ width: '97.2rem' }"
+        :style="{ width: '99.6%' }"
       >
         <!-- first level metrics -->
         <div class="flex row justify-evenly" style="height: 10rem; width: 100%">
@@ -18,15 +18,15 @@
             <q-card
               class="q-pa-sm flex column flex-center"
               :style="{
-                height: '10rem',
+                height: '9rem',
                 width: '100%',
                 backgroundColor: `${$getColor('accent')}`,
               }"
             >
-              <q-card-section class="text-h5" style="display: block"
+              <q-card-section class="text-h6" style="display: block"
                 >{{ dashboardMetrics.subscriberCount }}
               </q-card-section>
-              <q-card-section class="text-h5 text-bolder"
+              <q-card-section class="text-h6 text-bolder"
                 >Number of subscribers</q-card-section
               >
             </q-card>
@@ -36,15 +36,15 @@
             <q-card
               class="q-pa-sm flex column flex-center"
               :style="{
-                height: '10rem',
+                height: '9rem',
                 width: '100%',
                 backgroundColor: `${$getColor('accent')}`,
               }"
             >
-              <q-card-section class="text-h5">{{
+              <q-card-section class="text-h6">{{
                 dashboardMetrics.streetCount
               }}</q-card-section>
-              <q-card-section class="text-h5 text-bolder">
+              <q-card-section class="text-h6 text-bolder">
                 Number of street</q-card-section
               >
             </q-card>
@@ -54,15 +54,15 @@
             <q-card
               class="q-pa-sm flex column flex-center"
               :style="{
-                height: '10rem',
+                height: '9rem',
                 width: '100%',
                 backgroundColor: `${$getColor('accent')}`,
               }"
             >
-              <q-card-section class="text-h5"
+              <q-card-section class="text-h6"
                 >{{ dashboardMetrics.properitesCount }}
               </q-card-section>
-              <q-card-section class="text-h5 text-bolder"
+              <q-card-section class="text-h6 text-bolder"
                 >Number of properties
               </q-card-section>
             </q-card>
@@ -91,7 +91,7 @@
         <div
           class="flex row justify-around"
           :style="{
-            height: '10rem',
+            height: '9rem',
             width: '100%',
           }"
         >
@@ -100,15 +100,15 @@
             <q-card
               class="q-pa-sm flex column flex-center"
               :style="{
-                height: '10rem',
+                height: '9rem',
                 width: '100%',
                 backgroundColor: `${$getColor('accent')}`,
               }"
             >
-              <q-card-section class="text-h5">{{
+              <q-card-section class="text-h6">{{
                 dashboardMetrics.totalBillings
               }}</q-card-section>
-              <q-card-section class="text-h5 text-bolder">
+              <q-card-section class="text-h6 text-bolder">
                 Total Billings for month</q-card-section
               >
             </q-card>
@@ -118,15 +118,15 @@
             <q-card
               class="q-pa-sm flex column flex-center"
               :style="{
-                height: '10rem',
+                height: '9rem',
                 width: '100%',
                 backgroundColor: `${$getColor('accent')}`,
               }"
             >
-              <q-card-section class="text-h5">{{
+              <q-card-section class="text-h6">{{
                 dashboardMetrics.totalPayments
               }}</q-card-section>
-              <q-card-section class="text-h5 text-bolder">
+              <q-card-section class="text-h6 text-bolder">
                 Total Payments for month</q-card-section
               >
             </q-card>
