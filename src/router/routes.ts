@@ -4,13 +4,17 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('layouts/AuthenticatedLayout.vue'),
-    children: [{ path: '', component: () => import('pages/IndexPage.vue') }],
+    children: [
+      { path: '', component: () => import('pages/DashboardPage.vue') },
+    ],
   },
   {
     name: 'dashboard',
     path: '/dashboard',
     component: () => import('layouts/AuthenticatedLayout.vue'),
-    children: [{ path: '', component: () => import('pages/DashboardPage.vue') }],
+    children: [
+      { path: '', component: () => import('pages/DashboardPage.vue') },
+    ],
   },
   {
     name: 'properties-billings',

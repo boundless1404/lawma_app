@@ -69,7 +69,7 @@
   </div>
 </template>
 <script setup lang="ts">
-import { Ref, inject, reactive, ref } from 'vue';
+import { Ref, inject, onBeforeUnmount, reactive, ref } from 'vue';
 import { EventBus } from 'quasar';
 import { useRouter } from 'vue-router';
 import LawmaAppBadge from 'src/components/LawmaAppBadge.vue';
@@ -134,12 +134,21 @@ function resetForm() {
 // watchers
 watch(token as Ref<string>, (newValue) => {
   if (newValue) {
-    router.push('/');
+    const url = process.env.URL;
+    if (url) {
+      window.location.href = url;
+    } else {
+      router.push('/');
+    }
   }
 });
 
 // life cycle
 onMounted(() => {
   resetForm();
+});
+
+onBeforeUnmount(() => {
+  eventBus.off(EventNamesEnum.SIGN_IN);
 });
 </script>

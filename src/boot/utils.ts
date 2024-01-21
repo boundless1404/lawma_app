@@ -16,13 +16,7 @@ export default boot(({ app }) => {
   //   return getCssVar(colorAlias);
   // };
   // router.beforeEach((to, from, next) => {
-  //   console.log('this is the current route: ', to.path);
-  //   next(() => {
-  //     window.history.pushState(null, '', to.path);
-  //     window.onpopstate = () => {
-  //       next({ path: from.path, replace: true });
-  //     };
-  //   });
+  //   // check if user is authenticated
   // });
 
   app.config.globalProperties.$validateField = validateField;

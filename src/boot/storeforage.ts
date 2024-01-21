@@ -57,15 +57,24 @@ export default boot(async ({ app, redirect, router }) => {
 
   // TODO: when landing page exist remove auth check for landing page
   console.log('this is the current route ', router.currentRoute.value.path);
-  if (!['/auth/signin', '/'].includes(router.currentRoute.value.path)) {
-    const authStore = forageGetItem<AuthUserData>(
-      StorageNamesEnum.AUTH_USER_DATA
-    ) as AuthUserData;
-    if (authStore && !authStore?.token) {
-      redirect('/auth/signin');
-    }
-  }
 
+  // // check if user is authenticated
+  router.beforeEach(async (to, from, next) => {
+    if (!['/auth/signin', '/'].includes(to.path)) {
+      const authStore = JSON.parse(
+        (await forageGetItem<AuthUserData>(
+          StorageNamesEnum.AUTH_USER_DATA
+        )) as string
+      ) as AuthUserData;
+      if (!authStore?.token) {
+        redirect('/auth/signin');
+      } else {
+        next();
+      }
+    } else {
+      next();
+    }
+  });
   // store.state.value
 });
 
