@@ -14,4 +14,5 @@ export enum EventNamesEnum {
   VIEW_BILLING_DETAILS = 'view_billing_details',
   GET_DEFAULTERS = 'get_defaulters',
   POST_PAYMENT = 'post_payment',
+  PAGINATE_SUBSCRIPTION_TABLE = 'paginate_subscription_table',
 }

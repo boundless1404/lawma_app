@@ -3,6 +3,7 @@ import { UrlPathsEnum } from '../enums/urlPaths.enum';
 import { requestApi } from '../requests/default.request';
 import { EventBus } from 'quasar';
 import { EventNamesEnum } from '../enums/events.enum';
+import useBillingStore from 'src/stores/billing-store';
 
 export class BillingAccountHandler {
   static async getBillingAccountArrears(query: {
@@ -92,5 +93,22 @@ export class BillingAccountHandler {
         }
       }
     );
+  }
+
+  static async getBillingsForPrinting(streetId: string, billingMonth: string) {
+    const billingDetails = await requestApi(
+      UrlPathsEnum.BILLING_ACCOUNT_DETAILS.replace(':streetId', streetId),
+      'get',
+      {
+        params: {
+          billingMonth,
+        },
+      }
+    );
+
+    const billingStore = useBillingStore();
+    billingStore.updateBilling({ type: 'billingDetail', data: billingDetails });
+
+    return billingDetails;
   }
 }

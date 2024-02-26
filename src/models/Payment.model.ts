@@ -17,4 +17,6 @@ export class PaymentModel extends BaseModel {
   @IsNotEmpty({ message: 'Please, enter the mount' })
   @IsNumberString({}, { message: 'Please, enter a valid amount' })
   amount: string;
+
+  streetId: string;
 }
