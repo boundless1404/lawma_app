@@ -12,7 +12,7 @@ const forageGetItem = async <T>(
     const data = await storeforage.getItem<T>(key);
     return data;
   } catch (error) {
-    callback && callback(error);
+    callback?.(error);
   }
 };
 
@@ -23,13 +23,11 @@ const forageSetItem = async <T>(
 ) => {
   try {
     const stringifiedData = JSON.stringify(data);
-    console.log('this is the data before setItem: ', stringifiedData);
-    const saveData = await storeforage.setItem(key, stringifiedData);
-    console.log('this is the data after setItem: ', saveData);
+    await storeforage.setItem(key, stringifiedData);
   } catch (error) {
     console.log('this is the error from storeforage: ', error);
     // TODO: handle localforage setItem error
-    callback && callback(error);
+    callback?.(error);
   }
 };
 
@@ -60,7 +58,7 @@ export default boot(async ({ app, redirect, router }) => {
 
   // // check if user is authenticated
   router.beforeEach(async (to, from, next) => {
-    if (!['/auth/signin', '/'].includes(to.path)) {
+    if (!['/auth/signin'].includes(to.path)) {
       const authStore = JSON.parse(
         (await forageGetItem<AuthUserData>(
           StorageNamesEnum.AUTH_USER_DATA

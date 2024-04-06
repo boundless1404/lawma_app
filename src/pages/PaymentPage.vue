@@ -56,15 +56,21 @@
           </q-card-section>
           <q-card-section class="q-px-lg flex column justify-between">
             <q-form ref="paymentFormRef" @submit.prevent="">
-              <!-- write fields for the following
-                - select field for property Name
-                - input field payer name
-                - date field for date
-                - input field for amount
-                - input field for paid by
-                -->
               <div class="flext row justify-between">
-                <div class="flex column justify-between" style="width: 40%">
+                <div class="flex column justify-around" style="width: 40%">
+                  <div class="q-mb-lg">
+                    <q-select
+                      label="Street"
+                      v-model="paymentModel.streetId"
+                      filled
+                      outlined
+                      color="secondary"
+                      label-color="dark"
+                      :options="streetOptions"
+                      emit-value
+                      map-options
+                    />
+                  </div>
                   <div>
                     <q-select
                       v-model="paymentModel.propertySubscriptionId"
@@ -185,11 +191,15 @@ import { EventNamesEnum } from 'src/lib/enums/events.enum';
 import { clearUIEffects, isModelValid } from 'src/lib/utils';
 import { PaymentHandler } from 'src/lib/eventHandlers/paymentHandler.handler';
 import { onBeforeUnmount } from 'vue';
+import useLgaWardStreetStore from 'src/stores/lga-ward-street';
+import { storeToRefs } from 'pinia';
 
 // consts
 const monthNow = months[new Date().getMonth() + 1];
 const eventBus = inject('eventBus') as EventBus;
 const $q = useQuasar();
+
+const LgaWardStreetStore = useLgaWardStreetStore();
 
 // variables
 let timer: NodeJS.Timeout;
@@ -235,6 +245,15 @@ const showPaymentFormDialog = ref(false);
 const propertySubscriptions = ref<PropertySubscription[]>();
 const paymentFormRef = ref<QForm>();
 const payments = ref<PaymentRecord[]>([]);
+const { streets } = storeToRefs(LgaWardStreetStore);
+const streetOptions = computed(() => {
+  return streets?.value?.map((street) => {
+    return {
+      label: street.name,
+      value: street.id,
+    };
+  });
+});
 
 // handlers
 PaymentHandler.handlePostPayment(eventBus, {
@@ -309,10 +328,30 @@ watch(paymentMonth, async (newValue) => {
   });
 });
 
+watch(
+  () => paymentModel.streetId,
+  async (newVal) => {
+    if (newVal) {
+      // paymentModel.propertySuscriptionId = '';
+      // re-fetch property-subscriptions
+      const requestData = await PropertySubscriptionHandler.getSubscriptions({
+        streetId: newVal,
+        rowsPerPage: '200',
+      });
+      propertySubscriptions.value = requestData?.data;
+    }
+  }
+);
+
 //life cycle hooks
 onMounted(async () => {
-  propertySubscriptions.value =
-    await PropertySubscriptionHandler.getSubscriptions();
+  const requestData = await PropertySubscriptionHandler.getSubscriptions();
+  propertySubscriptions.value = requestData?.data;
+});
+
+onMounted(async () => {
+  streets?.value ||
+    (await LgaWardStreetStore.fetchServerData({ type: 'street' }));
 });
 
 onMounted(async () => {
