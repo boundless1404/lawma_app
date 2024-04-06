@@ -37,6 +37,11 @@ const routes: RouteRecordRaw[] = [
       { path: 'signin', component: () => import('pages/SigninPage.vue') },
     ],
   },
+  {
+    path: '/print',
+    component: () => import('layouts/PrintLayout.vue'),
+    children: [{ path: '', component: () => import('pages/PrintPage.vue') }],
+  },
 
   // Always leave this as last one,
   // but you can also remove it

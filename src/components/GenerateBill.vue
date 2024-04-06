@@ -93,7 +93,9 @@
           />
         </div>
         <div class="column justify-end" :style="{ height: '100%' }">
-          <q-btn rounded color="primary" @click="submit">Submit</q-btn>
+          <q-btn rounded color="primary" @click="submit">{{
+            printGeneratToggle === 'print' ? 'Print' : 'Generate'
+          }}</q-btn>
         </div>
       </div>
     </form>
@@ -101,7 +103,7 @@
   <!-- </dialog-card> -->
 </template>
 <script setup lang="ts">
-import { computed, defineComponent, ref } from 'vue';
+import { computed, defineComponent, onBeforeUnmount, ref } from 'vue';
 import TitleBadge from './TitleBadge.vue';
 import { BillingModel } from 'src/models/GenerateBill.model';
 import { reactive } from 'vue';
@@ -117,6 +119,8 @@ import { inject } from 'vue';
 import { EventBus, QForm, useQuasar } from 'quasar';
 import { EventNamesEnum } from 'src/lib/enums/events.enum';
 import { clearUIEffects } from 'src/lib/utils';
+import { BillingAccountHandler } from 'src/lib/eventHandlers/BillingAccount.handler';
+import { useRouter } from 'vue-router';
 
 defineComponent({
   name: 'generate-bill',
@@ -129,6 +133,7 @@ const LgaWardStreetStore = useLgaWardStreetStore();
 const monthNow = months[new Date().getMonth() + 1];
 const eventBus = inject('eventBus') as EventBus;
 const $q = useQuasar();
+const $router = useRouter();
 
 // variables
 let timer: NodeJS.Timeout;
@@ -177,14 +182,21 @@ const propertySubscriptionOptions = computed(() => {
 const billingModel = reactive(new BillingModel());
 
 // methods
-function submit() {
+async function submit() {
   //
-  if (billingModel.type === 'print') {
-    return;
-  }
-
   $q.loading.show({ message: 'Please, wait ...' });
-  eventBus.emit(EventNamesEnum.GENERATE_BILLING, billingModel);
+  if (billingModel.type === 'print') {
+    // fetch billing details
+    await BillingAccountHandler.getBillingsForPrinting(
+      billingModel.streetId,
+      billingModel.month
+    );
+
+    $router.push('/print');
+    return;
+  } else {
+    eventBus.emit(EventNamesEnum.GENERATE_BILLING, billingModel);
+  }
   timer = setTimeout(() => {
     $q.loading.show();
   }, loadingTimeout);
@@ -224,10 +236,10 @@ watch(
     if (newVal) {
       billingModel.propertySuscriptionId = '';
       // re-fetch property-subscriptions
-      propertySubscriptions.value =
-        await PropertySubscriptionHandler.getSubscriptions({
-          streetId: newVal,
-        });
+      const requestData = await PropertySubscriptionHandler.getSubscriptions({
+        streetId: newVal,
+      });
+      propertySubscriptions.value = requestData?.data;
     }
   }
 );
@@ -245,7 +257,11 @@ onMounted(async () => {
 });
 
 onMounted(async () => {
-  propertySubscriptions.value =
-    await PropertySubscriptionHandler.getSubscriptions();
+  const requestData = await PropertySubscriptionHandler.getSubscriptions();
+  propertySubscriptions.value = requestData?.data;
+});
+
+onBeforeUnmount(() => {
+  clearUIEffects({ loader: $q.loading, timer });
 });
 </script>

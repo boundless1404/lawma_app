@@ -12,7 +12,6 @@ const lgaWardStreet =
   ((await forageGetItem<LgaWardStreetStore>(
     StorageNamesEnum.LGA_WARD_STREET
   )) as LgaWardStreetStore) || {};
-console.log('This is lga ward street store ', lgaWardStreet);
 
 const useLgaWardStreetStore = defineStore('lgaWardStreet', {
   state: (): { streets?: StreetModel[] } => {

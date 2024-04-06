@@ -42,6 +42,18 @@ export interface PropertySubscription {
   streetName: string;
 }
 
+export type PropertySubscriptionRequest = {
+  data: PropertySubscription[];
+  pagination: {
+    rowsNumber: number;
+    rowsPerPage: number;
+    page: number;
+    sortBy: string;
+    descending: boolean;
+  };
+  filter?: string;
+};
+
 export type PropertySubscriptionArray = PropertySubscription[];
 
 export type PaymentRecord = {
@@ -53,4 +65,32 @@ export type PaymentRecord = {
   year: string;
   month: string;
   propertySubscriptionName: string;
+};
+
+export type TableRequestEventProps = {
+  pagination: {
+    sortBy?: string;
+    descending?: boolean;
+    page: number;
+    rowsPerPage: number;
+    rowsNumber?: number;
+  };
+  filter?: string;
+  getCellValue?: (e: unknown, t: unknown) => void;
+};
+
+export type BillingDetail = {
+  streetName: string;
+  PropertySubscriptionId: string;
+  propertyName: string;
+  currentBilling: string;
+  arrears: number;
+  totalBilling?: string;
+  lastPayment?: string;
+  streetNumber?: string;
+  propertyUnits?: {
+    propertyUnits: number;
+    propertyType: string;
+    propertyTypeUnitPrice: number;
+  }[];
 };

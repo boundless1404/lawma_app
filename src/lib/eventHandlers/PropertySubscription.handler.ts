@@ -12,7 +12,12 @@ import {
 } from '../requests/propertySubscription.request';
 import { PropertyTypeModel } from 'src/models/PropertyType.model';
 import { SubscriberModel } from 'src/models/Subscriber.model';
-import { PropertySubscription } from '../types/types';
+import {
+  PropertySubscriptionRequest,
+  TableRequestEventProps,
+} from '../types/types';
+import { requestApi } from '../requests/default.request';
+import { UrlPathsEnum } from '../enums/urlPaths.enum';
 
 export class PropertySubscriptionHandler {
   static async handlePostSubscription(
@@ -52,21 +57,72 @@ export class PropertySubscriptionHandler {
     );
   }
 
-  static async getSubscriptions(
-    query: { limit?: string; page?: string; streetId?: string } = {}
+  static async handlePaginateSubscription(
+    eventBus: EventBus,
+    {
+      onSuccess,
+      onError,
+    }: {
+      onSuccess: (serverResponse: PropertySubscriptionRequest) => void;
+      onError: (error: unknown) => void;
+    }
+  ) {
+    eventBus.on(
+      EventNamesEnum.PAGINATE_SUBSCRIPTION_TABLE,
+      async (props: TableRequestEventProps) => {
+        try {
+          const responseData = await requestApi(
+            UrlPathsEnum.SUBSCRIPTION,
+            'get',
+            {
+              params: props,
+            }
+          );
+
+          onSuccess(responseData);
+        } catch (error) {
+          onError(error);
+        }
+      }
+    );
+  }
+
+  static async getSubscriptionByPages(
+    props: TableRequestEventProps,
+    onError?: () => void
   ) {
     try {
-      let limit: number | undefined;
-      let page: number | undefined;
+      const responseData = await requestApi(UrlPathsEnum.SUBSCRIPTION, 'get', {
+        params: {
+          rowsPerPage: props.pagination.rowsPerPage,
+          page: props.pagination.page,
+          descending: props.pagination.descending,
+          sortBy: props.pagination.sortBy,
+          filter: props.filter,
+        },
+      });
+
+      return responseData as PropertySubscriptionRequest;
+    } catch (error) {
+      onError?.();
+    }
+  }
+
+  static async getSubscriptions(
+    query: { rowsPerPage?: string; page?: string; streetId?: string } = {}
+  ) {
+    try {
+      let rowsPerPage: string | undefined;
+      let page: string | undefined;
       if (query) {
-        limit = query.limit ? Number(query.limit) : undefined;
-        page = query.limit ? Number(query.page) : undefined;
+        rowsPerPage = query.rowsPerPage ? query.rowsPerPage : undefined;
+        page = query.page ? query.page : undefined;
       }
       const subscriptions = (await requestGetSubscription({
-        limit,
+        rowsPerPage,
         page,
         streetId: query.streetId,
-      })) as PropertySubscription[];
+      })) as PropertySubscriptionRequest;
       return subscriptions;
     } catch (error) {
       //
