@@ -21,7 +21,7 @@ const authUserData = JSON.parse(
 ) as AuthUserData;
 const api = axios.create({
   baseURL: process.env.DEV
-    ? 'https://95de-105-112-206-204.ngrok-free.app'
+    ? 'http://16.16.27.107:80'
     : process.env.API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
