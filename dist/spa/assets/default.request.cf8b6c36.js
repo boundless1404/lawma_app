@@ -1,0 +1,1 @@
+import{api as i}from"./axios.31427230.js";async function f(n,t="get",s={}){const e=await i[t](n,s!=null&&s.body?s.body:{params:s==null?void 0:s.params}),r=e.status;if(!(t==="get"&&r===200||t==="post"&&r===201))throw new Error("Request failed",{cause:e.data});return e.data}export{f as r};
