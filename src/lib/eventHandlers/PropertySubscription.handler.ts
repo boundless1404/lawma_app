@@ -251,4 +251,32 @@ export class PropertySubscriptionHandler {
       });
     }
   }
+
+  static async getPropertySubscriptionDetails(propertySubscriptionId: string) {
+    const propertySubscription = await requestApi(
+      UrlPathsEnum.PROPERTY_SUBSCRIPTION_DETAILS,
+      'get',
+      {
+        params: { propertySubscriptionId },
+      }
+    );
+
+    return propertySubscription;
+  }
+
+  static async savePropertyUnits(propertySubscriptionUnitDetails: {
+    propertySubscriptionId: string;
+    propertySubscriptionUnits: {
+      propertyTypeId: string;
+      propertyType: string;
+      propertyUnit: string;
+      unitPrice: string;
+    }[];
+  }) {
+    const response = await requestApi(UrlPathsEnum.SAVE_PROPERTY_UNITS, 'put', {
+      body: propertySubscriptionUnitDetails,
+    });
+
+    return response;
+  }
 }

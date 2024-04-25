@@ -79,10 +79,46 @@
                       </q-input>
                     </template>
                     <template v-slot:body="props">
-                      <q-tr :props="props">
-                        <q-td v-for="col in props.cols" :key="col.name">{{
-                          col.value
-                        }}</q-td>
+                      <q-tr
+                        :props="props"
+                        @mouseenter="hovering(props.rowIndex)"
+                        @mouseleave="hovering(-1)"
+                      >
+                        <q-td
+                          v-for="(col, index) in props.cols"
+                          :key="col.name"
+                        >
+                          <q-badge
+                            :label="col.value"
+                            class="text-bold"
+                            :style="{
+                              backgroundColor: 'transparent',
+                              color: `${$getColor('dark')}`,
+                            }"
+                          />
+                          <span
+                            v-if="index === props.cols.length - 1"
+                            v-show="rowIndex === props.rowIndex"
+                            :style="{
+                              position: 'absolute',
+                              top: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                              right:
+                                rowIndex === props.rowIndex ? '0.5rem' : '0',
+                              zIndex: rowIndex === props.rowIndex ? '1' : '0',
+                            }"
+                          >
+                            <advance-table-menu
+                              :menu-items="propertyTableMenuItems"
+                              @menuItemClickHandler="
+                                (menuItem) =>
+                                  propertySubscriptionTableMenuItemClickHandler(
+                                    props.row.propertySubscriptionId,
+                                    menuItem.label
+                                  )
+                              "
+                            />
+                          </span>
+                        </q-td>
                       </q-tr>
                     </template>
                   </q-table>
@@ -363,6 +399,12 @@
           />
         </dialog-card>
       </q-dialog>
+      <q-dialog v-model="showPropertySubscriptionModal">
+        <view-property-details
+          :dialogWidth="dialogWidth"
+          :property-subscription-id="propertySubscriptionId"
+        />
+      </q-dialog>
       <!-- </div> -->
     </div>
   </q-page>
@@ -396,6 +438,7 @@ import { BillingAccountHandler } from 'src/lib/eventHandlers/BillingAccount.hand
 import AdvanceTableMenu from 'src/components/AdvanceTableMenu.vue';
 import { onBeforeUnmount } from 'vue';
 import { useNotify } from 'src/composables/useNotify';
+import ViewPropertyDetails from 'src/components/ViewPropertyDetails.vue';
 
 // consts
 const $q = useQuasar();
@@ -415,6 +458,19 @@ const billingTableMenuItems: {
   },
   {
     label: 'Get Defaulters',
+    icon: 'paid',
+    textColor: 'black',
+  },
+];
+
+const propertyTableMenuItems = [
+  {
+    label: 'View Details',
+    icon: 'visibility',
+    textColor: 'black',
+  },
+  {
+    label: 'View Payments',
     icon: 'paid',
     textColor: 'black',
   },
@@ -604,6 +660,8 @@ const pagination = ref({
 });
 const subscriptionTableLoading = ref(true);
 const filter = ref('');
+const showPropertySubscriptionModal = ref(false);
+let propertySubscriptionId = ref();
 
 // computed
 const currentBillingMonthsOptions = computed(() => {
@@ -675,7 +733,20 @@ async function onRequest(props: TableRequestEventProps) {
 
   subscriptionTableLoading.value = false;
 }
-function billingTableMenuItemClickHandler(type: string, streetId?: string) {
+
+async function propertySubscriptionTableMenuItemClickHandler(
+  propertyId: string,
+  type: string
+) {
+  // display property details modal
+  if (type === 'View Details') {
+    propertySubscriptionId.value = propertyId;
+    showPropertySubscriptionModal.value = true;
+  } else {
+    alert('This feature is under development.');
+  }
+}
+function billingTableMenuItemClickHandler(type: string, streetId: string) {
   if (streetId) {
     console.log('payload', streetId);
     if (type === 'View Details') {

@@ -3,9 +3,9 @@ import { UrlPathsEnum } from '../enums/urlPaths.enum';
 
 export async function requestApi(
   url: UrlPathsEnum | string,
-  method: 'get' | 'post' = 'get',
+  method: 'get' | 'post' | 'put' = 'get',
   payload: {
-    body?: Record<string, unknown>;
+    body?: Record<string, unknown> | any;
     params?: Record<string, unknown>;
   } = {}
 ) {
@@ -14,11 +14,8 @@ export async function requestApi(
     payload?.body ? payload.body : { params: payload?.params }
   );
   const status = serverResponse.status;
-  const methodStatusIsValid =
-    (method === 'get' && status === 200) ||
-    (method === 'post' && status === 201);
 
-  if (!methodStatusIsValid) {
+  if (![200, 201, 204].includes(status)) {
     throw new Error('Request failed', {
       cause: serverResponse.data,
     });

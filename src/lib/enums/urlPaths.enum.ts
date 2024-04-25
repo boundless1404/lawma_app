@@ -15,4 +15,6 @@ export enum UrlPathsEnum {
   BILLING_ACCOUNT_DEFAULTER = '/utils-billing/billing/account/street/:streetId/defaulter',
   PAYMENT = '/utils-billing/payment',
   DASHBOARD_METRICS = '/utils-billing/dashboard/metrics',
+  PROPERTY_SUBSCRIPTION_DETAILS = '/utils-billing/subscription/details',
+  SAVE_PROPERTY_UNITS = '/utils-billing/subscription/property-units',
 }
