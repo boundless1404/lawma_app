@@ -7,7 +7,7 @@ import {
 import { BaseModel } from './base.model';
 
 export class PropertyTypeModel extends BaseModel {
-  id: string;
+  id: string | undefined;
 
   @IsNotEmpty({ message: 'Property type name is required' })
   @MinLength(2)
