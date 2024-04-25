@@ -529,7 +529,6 @@ onMounted(async () => {
     await PropertySubscriptionHandler.getPropertySubscriptionDetails(
       props.propertySubscriptionId
     );
-  console.log('Here is sub details: -->', unref(propertySubscription.value));
 });
 </script>
 

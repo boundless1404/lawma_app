@@ -138,7 +138,7 @@
 </template>
 <script setup lang="ts">
 import { DashboardHandler } from 'src/lib/eventHandlers/Dashboard.handler';
-import { computed, onMounted, ref, watch } from 'vue';
+import { onMounted, ref, watch } from 'vue';
 
 // refs
 const dashboardMetrics = ref<{

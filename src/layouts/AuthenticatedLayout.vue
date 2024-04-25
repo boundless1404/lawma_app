@@ -83,6 +83,17 @@
             <q-item-label>Payments</q-item-label>
           </q-item-section>
         </q-item>
+        <q-item
+          to="/settings"
+          :active-class="
+            activePage === '/settings' ? 'bg-secondary text-black' : ''
+          "
+        >
+          <q-icon name="money" style="height: 3.5rem; width: 3.5rem"></q-icon>
+          <q-item-section>
+            <q-item-label>Settings</q-item-label>
+          </q-item-section>
+        </q-item>
       </q-list>
     </q-drawer>
 
