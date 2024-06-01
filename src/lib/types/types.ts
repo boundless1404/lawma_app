@@ -94,3 +94,5 @@ export type BillingDetail = {
     propertyTypeUnitPrice: number;
   }[];
 };
+
+export type NotifierTypes = 'positive' | 'negative' | 'warning' | 'info';

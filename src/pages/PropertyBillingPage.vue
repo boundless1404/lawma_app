@@ -297,7 +297,7 @@
                         @mouseleave="hovering(-1)"
                       >
                         <q-td
-                          v-for="col in props.cols"
+                          v-for="(col, index) in props.cols"
                           :key="col.name"
                           class="text-center"
                           :style="{
@@ -312,27 +312,28 @@
                               color: `${$getColor('dark')}`,
                             }"
                           />
-                          <!-- <span
-                          v-if="index === props.cols.length - 1"
-                          v-show="rowIndex === props.rowIndex"
-                          :style="{
-                            position: 'absolute',
-                            top: rowIndex === props.rowIndex ? '0.5rem' : '0',
-                            right: rowIndex === props.rowIndex ? '0.5rem' : '0',
-                            zIndex: rowIndex === props.rowIndex ? '1' : '0',
-                          }"
-                        >
-                          <advance-table-menu
-                            :menu-items="billingTableMenuItems"
-                            @menuItemClickHandler="
-                              (menuItem) =>
-                                billingTableMenuItemClickHandler(
-                                  menuItem.label,
-                                  props.row.streetId
-                                )
-                            "
-                          />
-                        </span> -->
+                          <span
+                            v-if="index === props.cols.length - 1"
+                            v-show="rowIndex === props.rowIndex"
+                            :style="{
+                              position: 'absolute',
+                              top: rowIndex === props.rowIndex ? '0.5rem' : '0',
+                              right:
+                                rowIndex === props.rowIndex ? '0.5rem' : '0',
+                              zIndex: rowIndex === props.rowIndex ? '1' : '0',
+                            }"
+                          >
+                            <advance-table-menu
+                              :menu-items="billingDetailsTableMenuItems"
+                              @menuItemClickHandler="
+                                (menuItem) =>
+                                  billingDetailsTableClickHandler(
+                                    menuItem.label,
+                                    props.row.currentBillingId
+                                  )
+                              "
+                            />
+                          </span>
                         </q-td>
                       </q-tr>
                     </template>
@@ -439,9 +440,11 @@ import AdvanceTableMenu from 'src/components/AdvanceTableMenu.vue';
 import { onBeforeUnmount } from 'vue';
 import { useNotify } from 'src/composables/useNotify';
 import ViewPropertyDetails from 'src/components/ViewPropertyDetails.vue';
+import { BillingHandler } from 'src/lib/eventHandlers/Billing.handler';
 
 // consts
 const $q = useQuasar();
+// const $router = useRouter();
 const lightPageColor = getCssVar('light-page') || '#ffffff';
 const eventBus = inject('eventBus') as EventBus;
 const dialogWidth = 80;
@@ -472,6 +475,14 @@ const propertyTableMenuItems = [
   {
     label: 'View Payments',
     icon: 'paid',
+    textColor: 'black',
+  },
+];
+
+const billingDetailsTableMenuItems = [
+  {
+    label: 'Delete',
+    icon: 'remove',
     textColor: 'black',
   },
 ];
@@ -574,6 +585,12 @@ const billingDefaultersTableColumn: QTableColumn[] = [
     align: 'center',
   },
   {
+    field: 'currentBillingId',
+    label: 'Current Billing',
+    name: 'currentBillingId',
+    align: 'center',
+  },
+  {
     field: 'arrears',
     label: 'Arrears',
     name: 'arrears',
@@ -598,9 +615,9 @@ const billingDetailsTableColumn: QTableColumn[] = [
 ];
 
 const billingTableVisibleColumns = ['streetName', 'arrears', 'totalBilling'];
-const billingDefaultersVisibleColumns = billingDefaultersTableColumn.map(
-  (col) => col.field
-);
+const billingDefaultersVisibleColumns = billingDefaultersTableColumn
+  .filter((billing) => billing.name !== 'currentBillingId')
+  .map((col) => col.field);
 const billingDetailsVisibleColumns = [
   ...billingDefaultersVisibleColumns,
   'totalBilling',
@@ -646,6 +663,7 @@ const billingDefaultersAndDetailsTableRows = ref<
     PropertySubscriptionId: string;
     propertyName: string;
     currentBilling: string;
+    currentBillingId: string;
     arrears: number;
     totalBilling?: string;
     lastPayment?: string;
@@ -746,7 +764,35 @@ async function propertySubscriptionTableMenuItemClickHandler(
     alert('This feature is under development.');
   }
 }
-function billingTableMenuItemClickHandler(type: string, streetId: string) {
+
+async function billingDetailsTableClickHandler(
+  type: string,
+  billingId: string
+) {
+  try {
+    if (type === 'Delete') {
+      //
+      $q.loading.show({
+        message: 'Deleting ...',
+      });
+      await BillingHandler.deleteBilling(billingId);
+      useNotify({ type: 'positive', message: 'Process successful!' });
+      $q.loading.hide();
+      window.location.reload();
+    }
+  } catch (error) {
+    useNotify({
+      type: 'negative',
+    });
+
+    $q.loading.hide();
+  }
+}
+
+async function billingTableMenuItemClickHandler(
+  type: string,
+  streetId: string
+) {
   if (streetId) {
     console.log('payload', streetId);
     if (type === 'View Details') {
@@ -767,6 +813,7 @@ function onSuccessfulGettingBillingDetails(
     PropertySubscriptionId: string;
     propertyName: string;
     currentBilling: string;
+    currentBillingId: string;
     arrears: number;
     totalBilling?: string;
     lastPayment?: string;
@@ -783,6 +830,7 @@ function onSuccessfulGettingDefaulters(
     PropertySubscriptionId: string;
     propertyName: string;
     currentBilling: string;
+    currentBillingId: string;
     arrears: number;
     totalBilling?: string;
   }[]

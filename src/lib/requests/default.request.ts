@@ -3,7 +3,7 @@ import { UrlPathsEnum } from '../enums/urlPaths.enum';
 
 export async function requestApi(
   url: UrlPathsEnum | string,
-  method: 'get' | 'post' | 'put' = 'get',
+  method: 'get' | 'post' | 'put' | 'delete' = 'get',
   payload: {
     body?: Record<string, unknown> | any;
     params?: Record<string, unknown>;

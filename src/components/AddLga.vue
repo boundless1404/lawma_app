@@ -63,7 +63,7 @@ LgaWardStreetHandler.handlePostLga(eventBus, { onSuccess, onError });
 
 // computed
 asyncComputed(async () => {
-  lgaModel.validate();
+  await lgaModel.validate();
 });
 
 // methods
