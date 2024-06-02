@@ -43,13 +43,29 @@
             </div>
             <!-- down -->
             <div>
-              <p>
-                <span>Arrears</span
-                ><q-badge
+              <p class="cursor-pointer">
+                <span>Arrears</span>
+                <q-chip
                   class="q-ml-sm q-pa-sm q-px-sm"
-                  :label="arrears"
+                  :label="propertySubscriptionArrearsRef"
                   rounded
+                  color="primary"
+                  text-color="white"
+                  icon-right="edit"
                 />
+                <q-popup-edit
+                  v-model="propertySubscriptionArrearsRef"
+                  auto-save
+                  v-slot="scope"
+                >
+                  <q-input
+                    v-model="scope.value"
+                    dense
+                    autofocus
+                    counter
+                    @keyup.enter="scope.set"
+                  />
+                </q-popup-edit>
               </p>
               <p>
                 <span>Last Payment</span
@@ -286,12 +302,14 @@
 import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import DialogCard from 'components/DialogCard.vue';
 import BorderedCard from 'components/BorderedCard.vue';
-import { QTableColumn } from 'quasar';
+import { QTableColumn, useQuasar } from 'quasar';
 import { PropertySubscriptionHandler } from 'src/lib/eventHandlers/PropertySubscription.handler';
 import { unref } from 'vue';
 import AdvanceTableMenu from 'components/AdvanceTableMenu.vue';
 import { useNotify } from 'src/composables/useNotify';
 import { PropertyTypeModel } from 'src/models/PropertyType.model';
+import { BillingHandler } from 'src/lib/eventHandlers/Billing.handler';
+import useUiProcessHandler from 'src/composables/useUIProcessHandler';
 
 export interface ViewPropertyDetailsProps {
   dialogWidth?: number;
@@ -309,6 +327,7 @@ defineComponent({
   },
 });
 
+const $q = useQuasar();
 const billingDetailsTableMenuItems: {
   label: string;
   icon: string;
@@ -377,6 +396,7 @@ const isEditing = ref(false);
 const propertySubscription = ref<Record<string, any>>({});
 const rowIndex = ref(-1);
 const isSaving = ref(false);
+const propertySubscriptionArrearsRef = ref('');
 
 // computed
 const propertyTypesOptions = computed(() => {
@@ -511,7 +531,44 @@ function hovering(index: number) {
   rowIndex.value = index;
 }
 
+async function fetchPropertySubscription() {
+  propertySubscription.value =
+    await PropertySubscriptionHandler.getPropertySubscriptionDetails(
+      props.propertySubscriptionId
+    );
+}
+
 // watchers;
+
+watch(propertySubscriptionArrearsRef, async (newValue) => {
+  const valueHasChanged = newValue !== arrears.value;
+  if (valueHasChanged) {
+    const valueToSend = newValue;
+
+    await useUiProcessHandler({
+      loader: $q.loading,
+    process: async() => {
+      await BillingHandler.updateArrears({
+      arrears: newValue.substring(1),
+      propertySubscriptionId: props.propertySubscriptionId,
+    });
+    },
+    loaderMessage: 'Please, wait ...'
+    })
+
+    await fetchPropertySubscription();
+  }
+});
+
+// update arrears ref
+watch(propertySubscription, (newValue) => {
+  if (newValue) {
+    const balance =
+      Number(unref(propertySubscription.value).billingAccount.totalBillings) -
+      Number(unref(propertySubscription.value).billingAccount.totalPayments);
+    propertySubscriptionArrearsRef.value = 'N' + balance;
+  }
+});
 watch(propertySubscription, (newValue) => {
   if (newValue) {
     propertySubscriptionUnitsTableRows.value =
@@ -525,10 +582,7 @@ watch(propertySubscription, (newValue) => {
 });
 
 onMounted(async () => {
-  propertySubscription.value =
-    await PropertySubscriptionHandler.getPropertySubscriptionDetails(
-      props.propertySubscriptionId
-    );
+  await fetchPropertySubscription();
 });
 </script>
 

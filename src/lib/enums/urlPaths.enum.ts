@@ -17,4 +17,5 @@ export enum UrlPathsEnum {
   DASHBOARD_METRICS = '/utils-billing/dashboard/metrics',
   PROPERTY_SUBSCRIPTION_DETAILS = '/utils-billing/subscription/details',
   SAVE_PROPERTY_UNITS = '/utils-billing/subscription/property-units',
+  UPDATE_ARREARS = "/utils-billing/billing/account",
 }

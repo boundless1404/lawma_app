@@ -5,6 +5,9 @@ import {
   requestGetBilling,
   requestPostBilling,
 } from '../requests/billing.request';
+import { requestApi } from '../requests/default.request';
+import { UrlPathsEnum } from '../enums/urlPaths.enum';
+import { useNotify } from 'src/composables/useNotify';
 
 export class BillingHandler {
   static async handGenerateBilling(
@@ -56,5 +59,24 @@ export class BillingHandler {
         timeout: 5000,
       });
     }
+  }
+
+  static async deleteBilling(billingId: string) {
+    const serverResponse = await requestApi(UrlPathsEnum.BILLING, 'delete', {
+      params: {
+        billingId,
+      },
+    });
+
+    return serverResponse;
+  }
+
+  static async updateArrears(body: {
+    arrears: string;
+    propertySubscriptionId: string;
+  }) {
+    const newValue = await requestApi(UrlPathsEnum.UPDATE_ARREARS, 'put', {
+      body,
+    });
   }
 }

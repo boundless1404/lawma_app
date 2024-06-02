@@ -1,10 +1,11 @@
 import { Notify } from 'quasar';
+import { NotifierTypes } from 'src/lib/types/types';
 
 export function useNotify({
   type = 'positive',
   message,
 }: {
-  type?: 'positive' | 'negative' | 'warning' | 'info';
+  type?: NotifierTypes,
   message?: string;
 } = {}) {
   Notify.create({
