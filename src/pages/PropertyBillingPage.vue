@@ -889,7 +889,7 @@ watchEffect(async () => {
     billingAccountArreas.value =
       await BillingAccountHandler.getBillingAccountArrears({
         page: 1,
-        limit: 5,
+        limit: 200,
       });
   }
 });
@@ -899,7 +899,7 @@ watch(currentBIllingMonth, async () => {
     billingAccountArreas.value =
       await BillingAccountHandler.getBillingAccountArrears({
         page: 1,
-        limit: 5,
+        limit: 200,
         month: currentBIllingMonth.value,
       });
   }
