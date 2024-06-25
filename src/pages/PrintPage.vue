@@ -1,20 +1,27 @@
 <template>
-  <q-page>
+  <q-page class="print-page">
     <!-- write template to display 4 billings to print per page -->
     <!-- print wrapper -->
     <div
       v-for="(billingDetailsPage, firstIndex) of printPagesDocument"
       :key="firstIndex"
       class="flex column justify-between q-pa-md q-gutter-lg"
-      :style="{ pageBreakAfter: 'always', page: `${firstIndex}` }"
+      :style="{
+        pageBreakAfter: 'always',
+        page: `${firstIndex}`,
+      }"
     >
       <!-- top -->
       <div
         v-for="(billingDetailsSide, secodndIndex) in billingDetailsPage"
         :key="secodndIndex"
         :class="`flex row ${
-          billingDetailsSide.length > 1 ? 'justify-around' : 'justify-start'
+          billingDetailsSide.length > 1 ? 'justify-around' : ''
         }`"
+
+        :style="{
+          ...(billingDetailsSide.length > 1 ? {} : {marginRight: '3vw'})
+        }"
       >
         <!-- right -->
         <div
@@ -23,12 +30,16 @@
         >
           <q-card
             :style="{
-              width: '40vw',
-              height: '30vh',
-              marginTop: '4rem',
+              width: '46vw',
+              height: 'auto',
+              marginTop: '0.2vh',
+              wordWrap: 'break-word',
+              wordBreak: 'break-all',
+              overflowWrap: 'break-word',
+              hyphens: 'auto',
             }"
           >
-            <q-card-section>
+            <q-card-section style="width: 50%; height: 40vh">
               <p>
                 {{ billing.propertyName }} of {{ billing.streetNumber }}
                 {{ billing.streetName }}
