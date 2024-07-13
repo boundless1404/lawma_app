@@ -14,7 +14,8 @@ import LawmaAppBadge from '../components/LawmaAppBadge.vue';
 @media print {
   .print-page {
     font-family: "Times New Roman", Times, serif; 
-    font-size: 0.6rem; 
+    font-size: 0.6rem;
+    font-weight: 600; 
     color: black;
     word-wrap: break-word;
     word-break: break-all;

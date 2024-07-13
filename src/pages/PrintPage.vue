@@ -39,13 +39,27 @@
               hyphens: 'auto',
             }"
           >
-            <q-card-section style="width: 50%; height: 40vh">
+          <q-card-section class="flex row justify-evenly" style="width: 100%; height: 4rem; margin-bottom: 1.5rem;" >
+            <!-- <div class="card-logo-div">
+              <q-img src="assets/lawma-logo.jpeg" />
+            </div>
+            <div class="card-logo-div">
+             <div>
+              <q-img src="assets/grs-logo-2.png" />
+              
+            </div>
+             </div>
+            <div class="card-logo-div">
+              <q-img src="assets/lagos-state-logo.jpeg" />
+            </div> -->
+          </q-card-section>
+            <q-card-section class="billing-details" style="width: 50vw; height: 36vh">
               <p>
                 {{ billing.propertyName }} of {{ billing.streetNumber }}
                 {{ billing.streetName }}
               </p>
               <div>
-                <q-badge color="primary">Billing Details</q-badge>
+                <p style="font-weight: 800;">Billing Details</p>
                 <p
                   v-for="(unit, lastIndex) of billing.propertyUnits"
                   :key="lastIndex"
@@ -182,3 +196,12 @@ onMounted(() => {
   //
 });
 </script>
+<style lang="scss" scoped>
+  .card-logo-div {
+    width: 6rem;
+  }
+
+  .billing-details {
+    margin: -0.1vh 0 0 0.2vw
+  }
+</style>

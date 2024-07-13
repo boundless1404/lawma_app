@@ -11,7 +11,6 @@ export default async function useUiProcessHandler({
   notifierMessage,
   loaderMessage = 'Please, wait!',
   showErrorNotifier = true,
-  errorMesssage,
 }: {
   loader?: Loading;
   useNotifer?: boolean;
@@ -19,7 +18,6 @@ export default async function useUiProcessHandler({
   notifierMessage?: string;
   notifierType?: NotifierTypes;
   showErrorNotifier?: boolean;
-  errorMesssage?: string
   process: () => Promise<void>;
   onError?: () => void,
 }) {
@@ -30,12 +28,13 @@ export default async function useUiProcessHandler({
     await process();
     useNotifer && useNotify({ type: notifierType, ...(notifierMessage ? { message: notifierMessage } : {}) })
   }
-  catch (error) {
+  catch (err) {
+    const error = <Error>err;
     onError?.();
-    showErrorNotifier && useNotify({ type: 'negative', ...(errorMesssage ? { message: errorMesssage } : {})})
+    showErrorNotifier && useNotify({ type: 'negative', ...(error.message ? { message: error.message } : {})})
   }
   finally {
-    loader && loader.isActive && loader.hide();
+    loader?.isActive && loader.hide();
   }
 
 }
