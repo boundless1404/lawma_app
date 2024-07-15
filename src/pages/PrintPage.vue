@@ -1,20 +1,27 @@
 <template>
-  <q-page>
+  <q-page class="print-page">
     <!-- write template to display 4 billings to print per page -->
     <!-- print wrapper -->
     <div
       v-for="(billingDetailsPage, firstIndex) of printPagesDocument"
       :key="firstIndex"
       class="flex column justify-between q-pa-md q-gutter-lg"
-      :style="{ pageBreakAfter: 'always', page: `${firstIndex}` }"
+      :style="{
+        pageBreakAfter: 'always',
+        page: `${firstIndex}`,
+      }"
     >
       <!-- top -->
       <div
         v-for="(billingDetailsSide, secodndIndex) in billingDetailsPage"
         :key="secodndIndex"
         :class="`flex row ${
-          billingDetailsSide.length > 1 ? 'justify-around' : 'justify-start'
+          billingDetailsSide.length > 1 ? 'justify-around' : ''
         }`"
+
+        :style="{
+          ...(billingDetailsSide.length > 1 ? {} : {marginRight: '3vw'})
+        }"
       >
         <!-- right -->
         <div
@@ -23,18 +30,36 @@
         >
           <q-card
             :style="{
-              width: '40vw',
-              height: '30vh',
-              marginTop: '4rem',
+              width: '46vw',
+              height: 'auto',
+              marginTop: '0.2vh',
+              wordWrap: 'break-word',
+              wordBreak: 'break-all',
+              overflowWrap: 'break-word',
+              hyphens: 'auto',
             }"
           >
-            <q-card-section>
+          <q-card-section class="flex row justify-evenly" style="width: 100%; height: 4rem; margin-bottom: 1.5rem;" >
+            <!-- <div class="card-logo-div">
+              <q-img src="assets/lawma-logo.jpeg" />
+            </div>
+            <div class="card-logo-div">
+             <div>
+              <q-img src="assets/grs-logo-2.png" />
+              
+            </div>
+             </div>
+            <div class="card-logo-div">
+              <q-img src="assets/lagos-state-logo.jpeg" />
+            </div> -->
+          </q-card-section>
+            <q-card-section class="billing-details" style="width: 50vw; height: 36vh">
               <p>
                 {{ billing.propertyName }} of {{ billing.streetNumber }}
                 {{ billing.streetName }}
               </p>
               <div>
-                <q-badge color="primary">Billing Details</q-badge>
+                <p style="font-weight: 800;">Billing Details</p>
                 <p
                   v-for="(unit, lastIndex) of billing.propertyUnits"
                   :key="lastIndex"
@@ -171,3 +196,12 @@ onMounted(() => {
   //
 });
 </script>
+<style lang="scss" scoped>
+  .card-logo-div {
+    width: 6rem;
+  }
+
+  .billing-details {
+    margin: -0.1vh 0 0 0.2vw
+  }
+</style>

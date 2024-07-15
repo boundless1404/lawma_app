@@ -146,6 +146,7 @@ const printGeneratToggle = ref<'generate' | 'print'>('generate');
 const { streets } = storeToRefs(LgaWardStreetStore);
 const propertySubscriptions = ref<PropertySubscription[]>();
 const billingModelForm = ref<QForm>();
+const propertySubscriptionId = ref('')
 
 // computed
 const printGenerateTitle = computed(() =>
@@ -189,7 +190,8 @@ async function submit() {
     // fetch billing details
     await BillingAccountHandler.getBillingsForPrinting(
       billingModel.streetId,
-      billingModel.month
+      billingModel.month,
+      billingModel.propertySuscriptionId,
     );
 
     $router.push('/print');

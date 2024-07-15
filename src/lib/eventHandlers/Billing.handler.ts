@@ -74,6 +74,7 @@ export class BillingHandler {
   static async updateArrears(body: {
     arrears: string;
     propertySubscriptionId: string;
+    reason: string;
   }) {
     const newValue = await requestApi(UrlPathsEnum.UPDATE_ARREARS, 'put', {
       body,

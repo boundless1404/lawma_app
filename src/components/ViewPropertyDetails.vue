@@ -43,17 +43,20 @@
             </div>
             <!-- down -->
             <div>
-              <p class="cursor-pointer">
+              <p>
                 <span>Arrears</span>
-                <q-chip
+                <q-btn flat padding="0" @click="toggleEditModal">
+                  <q-chip
                   class="q-ml-sm q-pa-sm q-px-sm"
-                  :label="propertySubscriptionArrearsRef"
+                  :label="'N' + propertySubscriptionArrearsRef"
                   rounded
                   color="primary"
                   text-color="white"
                   icon-right="edit"
+                  
                 />
-                <q-popup-edit
+                </q-btn>
+                <!-- <q-popup-edit
                   v-model="propertySubscriptionArrearsRef"
                   auto-save
                   v-slot="scope"
@@ -65,7 +68,19 @@
                     counter
                     @keyup.enter="scope.set"
                   />
-                </q-popup-edit>
+                </q-popup-edit> -->
+                
+                <q-dialog v-model="openEditModal" >
+                  <div>
+                    <edit-arrears
+                  :amount="propertySubscriptionArrearsRef"
+                  :property-subscription-id="propertySubscriptionId"
+                  @update-amount="
+                    (value) => (propertySubscriptionArrearsRef = value)
+                  "
+                />
+                  </div>
+                </q-dialog>
               </p>
               <p>
                 <span>Last Payment</span
@@ -301,6 +316,7 @@
 <script lang="ts" setup>
 import { computed, defineComponent, onMounted, ref, watch } from 'vue';
 import DialogCard from 'components/DialogCard.vue';
+import EditArrears from 'src/components/EditArrears.vue';
 import BorderedCard from 'components/BorderedCard.vue';
 import { QTableColumn, useQuasar } from 'quasar';
 import { PropertySubscriptionHandler } from 'src/lib/eventHandlers/PropertySubscription.handler';
@@ -397,6 +413,7 @@ const propertySubscription = ref<Record<string, any>>({});
 const rowIndex = ref(-1);
 const isSaving = ref(false);
 const propertySubscriptionArrearsRef = ref('');
+const openEditModal = ref(false);
 
 // computed
 const propertyTypesOptions = computed(() => {
@@ -538,27 +555,31 @@ async function fetchPropertySubscription() {
     );
 }
 
+function toggleEditModal() {
+  openEditModal.value = !openEditModal.value;
+}
+
 // watchers;
 
-watch(propertySubscriptionArrearsRef, async (newValue) => {
-  const valueHasChanged = newValue !== arrears.value;
-  if (valueHasChanged) {
-    const valueToSend = newValue;
+// watch(propertySubscriptionArrearsRef, async (newValue) => {
+//   const valueHasChanged = newValue !== arrears.value;
+  // if (valueHasChanged) {
+  //   const valueToSend = newValue;
 
-    await useUiProcessHandler({
-      loader: $q.loading,
-    process: async() => {
-      await BillingHandler.updateArrears({
-      arrears: newValue.substring(1),
-      propertySubscriptionId: props.propertySubscriptionId,
-    });
-    },
-    loaderMessage: 'Please, wait ...'
-    })
+  //   await useUiProcessHandler({
+  //     loader: $q.loading,
+  //     process: async () => {
+  //       await BillingHandler.updateArrears({
+  //         arrears: newValue.substring(1),
+  //         propertySubscriptionId: props.propertySubscriptionId,
+  //       });
+  //     },
+  //     loaderMessage: 'Please, wait ...',
+  //   });
 
-    await fetchPropertySubscription();
-  }
-});
+  //   await fetchPropertySubscription();
+  // }
+// });
 
 // update arrears ref
 watch(propertySubscription, (newValue) => {
@@ -566,7 +587,7 @@ watch(propertySubscription, (newValue) => {
     const balance =
       Number(unref(propertySubscription.value).billingAccount.totalBillings) -
       Number(unref(propertySubscription.value).billingAccount.totalPayments);
-    propertySubscriptionArrearsRef.value = 'N' + balance;
+    propertySubscriptionArrearsRef.value = '' + balance;
   }
 });
 watch(propertySubscription, (newValue) => {
