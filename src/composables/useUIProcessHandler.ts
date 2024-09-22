@@ -1,6 +1,6 @@
-import { Loading, useQuasar } from "quasar";
-import { NotifierTypes } from "src/lib/types/types";
-import { useNotify } from "./useNotify";
+import { Loading } from 'quasar';
+import { NotifierTypes } from 'src/lib/types/types';
+import { useNotify } from './useNotify';
 
 export default async function useUiProcessHandler({
   process,
@@ -21,7 +21,7 @@ export default async function useUiProcessHandler({
   process: () => Promise<void>;
   onError?: () => void,
 }) {
-  
+
   loader && loader.show({ message: loaderMessage});
 
   try {

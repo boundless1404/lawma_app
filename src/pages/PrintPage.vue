@@ -202,6 +202,7 @@ onMounted(() => {
   }
 
   .billing-details {
-    margin: -0.1vh 0 0 0.2vw
+    margin: -0.1vh 0 0 0.2vw;
+    padding-top: 3rem
   }
 </style>
