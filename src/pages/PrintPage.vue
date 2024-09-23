@@ -2,45 +2,29 @@
   <q-page class="print-page">
     <!-- write template to display 4 billings to print per page -->
     <!-- print wrapper -->
-    <div
-      v-for="(billingDetailsPage, firstIndex) of printPagesDocument"
-      :key="firstIndex"
-      class="flex column justify-between q-pa-md q-gutter-lg"
-      :style="{
+    <div v-for="(billingDetailsPage, firstIndex) of printPagesDocument" :key="firstIndex"
+      class="flex column justify-between q-pa-md q-gutter-lg" :style="{
         pageBreakAfter: 'always',
         page: `${firstIndex}`,
-      }"
-    >
+      }">
       <!-- top -->
-      <div
-        v-for="(billingDetailsSide, secodndIndex) in billingDetailsPage"
-        :key="secodndIndex"
-        :class="`flex row ${
-          billingDetailsSide.length > 1 ? 'justify-around' : ''
-        }`"
-
-        :style="{
-          ...(billingDetailsSide.length > 1 ? {} : {marginRight: '3vw'})
-        }"
-      >
+      <div v-for="(billingDetailsSide, secodndIndex) in billingDetailsPage" :key="secodndIndex" :class="`flex row ${billingDetailsSide.length > 1 ? 'justify-around' : ''
+        }`" :style="{
+          ...(billingDetailsSide.length > 1 ? {} : { marginRight: '3vw' })
+        }">
         <!-- right -->
-        <div
-          v-for="billing of billingDetailsSide"
-          :key="billing.PropertySubscriptionId"
-        >
-          <q-card
-            :style="{
-              width: '46vw',
-              height: 'auto',
-              marginTop: '0.2vh',
-              wordWrap: 'break-word',
-              wordBreak: 'break-all',
-              overflowWrap: 'break-word',
-              hyphens: 'auto',
-            }"
-          >
-          <q-card-section class="flex row justify-evenly" style="width: 100%; height: 4rem; margin-bottom: 1.5rem;" >
-            <!-- <div class="card-logo-div">
+        <div v-for="billing of billingDetailsSide" :key="billing.PropertySubscriptionId">
+          <q-card :style="{
+            width: '46vw',
+            height: 'auto',
+            marginTop: '0.2vh',
+            wordWrap: 'break-word',
+            wordBreak: 'break-all',
+            overflowWrap: 'break-word',
+            hyphens: 'auto',
+          }">
+            <q-card-section class="flex row justify-evenly" style="width: 100%; height: 4rem; margin-bottom: 1.5rem;">
+              <!-- <div class="card-logo-div">
               <q-img src="assets/lawma-logo.jpeg" />
             </div>
             <div class="card-logo-div">
@@ -52,18 +36,16 @@
             <div class="card-logo-div">
               <q-img src="assets/lagos-state-logo.jpeg" />
             </div> -->
-          </q-card-section>
-            <q-card-section class="billing-details" style="width: 50vw; height: 36vh">
+            </q-card-section>
+            <q-card-section :class="`billing-details ${secodndIndex % 2 > 0 ? 'odd-row' : ''} `"
+              style="width: 50vw; height: 36vh">
               <p>
                 {{ billing.propertyName }} of {{ billing.streetNumber }}
                 {{ billing.streetName }}
               </p>
               <div>
                 <p style="font-weight: 800;">Billing Details</p>
-                <p
-                  v-for="(unit, lastIndex) of billing.propertyUnits"
-                  :key="lastIndex"
-                >
+                <p v-for="(unit, lastIndex) of billing.propertyUnits" :key="lastIndex">
                   Property: {{ unit.propertyType }} | Units:
                   {{ unit.propertyUnits }} | Amount: N{{
                     Number(unit.propertyTypeUnitPrice) *
@@ -163,7 +145,7 @@ const printPagesDocument = computed(() => {
     const billingDetailsLength = billingDetails.value.length;
     const billingArrArr: BillingDetail[][][] = [];
 
-    for (let itemsCount = 0; itemsCount < billingDetailsLength; ) {
+    for (let itemsCount = 0; itemsCount < billingDetailsLength;) {
       let startIndex = itemsCount;
       const endIndex =
         itemsCount + 4 > billingDetailsLength
@@ -171,7 +153,7 @@ const printPagesDocument = computed(() => {
           : itemsCount + 4;
 
       const innerBillingArr: BillingDetail[][] = [];
-      for (let innerItemsCount = 0; innerItemsCount < endIndex; ) {
+      for (let innerItemsCount = 0; innerItemsCount < endIndex;) {
         // const innerStart = startIndex;
         const innerEnd = startIndex + 2 > endIndex ? endIndex : startIndex + 2;
         const twoEach = billingDetails.value?.slice(startIndex, innerEnd);
@@ -197,11 +179,16 @@ onMounted(() => {
 });
 </script>
 <style lang="scss" scoped>
-  .card-logo-div {
-    width: 6rem;
-  }
+.card-logo-div {
+  width: 6rem;
+}
 
-  .billing-details {
-    margin: -0.1vh 0 0 0.2vw
-  }
+.billing-details {
+  margin: -0.1vh 0 0 0.2vw;
+  font-size: 0.68rem;
+
+  // &.odd-row {
+  //   padding-top: 5.4rem
+  // }
+}
 </style>
