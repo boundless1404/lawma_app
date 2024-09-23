@@ -13,14 +13,21 @@ import LawmaAppBadge from '../components/LawmaAppBadge.vue';
 /* Print styles */
 @media print {
   .print-page {
-    font-family: "Times New Roman", Times, serif; 
-    font-size: 0.8rem;
-    font-weight: 800; 
+    font-family: "Times New Roman", Times, serif;
+    font-size: 0.68rem;
+    line-height: 0.2rem;
+    font-weight: 900;
     color: black;
     word-wrap: break-word;
     word-break: break-all;
     overflow-wrap: break-word;
     hyphens: auto;
+
+    & .billing-details {
+      &.odd-row {
+        padding-top: 5.4rem
+      }
+    }
   }
-  }
+}
 </style>
