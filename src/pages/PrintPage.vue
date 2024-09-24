@@ -13,7 +13,7 @@
           ...(billingDetailsSide.length > 1 ? {} : { marginRight: '3vw' })
         }">
         <!-- right -->
-        <div v-for="billing of billingDetailsSide" :key="billing.PropertySubscriptionId">
+        <div v-for="billing of billingDetailsSide" :key="billing.propertySubscriptionId">
           <q-card :style="{
             width: '46vw',
             height: 'auto',
@@ -39,8 +39,9 @@
             </q-card-section>
             <q-card-section :class="`billing-details ${secodndIndex % 2 > 0 ? 'odd-row' : ''} `"
               style="width: 50vw; height: 36vh">
+              <p>{{datestring}}</p>
               <p>
-                {{ billing.propertyName }} of {{ billing.streetNumber }}
+               GRS-{{ billing.propertySubscriptionId }} | {{ billing.propertyName }} of {{ billing.streetNumber }} 
                 {{ billing.streetName }}
               </p>
               <div>
@@ -135,11 +136,17 @@ import { storeToRefs } from 'pinia';
 import { BillingDetail } from 'src/lib/types/types';
 import useBillingStore from 'src/stores/billing-store';
 import { computed, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+
+// props
+
+const route = useRoute();
 
 // consts
 const billingStore = useBillingStore();
 const { billingDetails } = storeToRefs(billingStore);
 
+// computed
 const printPagesDocument = computed(() => {
   if (billingDetails?.value) {
     const billingDetailsLength = billingDetails.value.length;
@@ -171,6 +178,10 @@ const printPagesDocument = computed(() => {
     return [];
   }
 });
+
+const datestring = computed(() => {
+  return route.params?.datestring
+})
 
 console.log('this is the billing details: ', billingDetails);
 

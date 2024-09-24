@@ -81,7 +81,7 @@ export type TableRequestEventProps = {
 
 export type BillingDetail = {
   streetName: string;
-  PropertySubscriptionId: string;
+  propertySubscriptionId: string;
   propertyName: string;
   currentBilling: string;
   arrears: number;

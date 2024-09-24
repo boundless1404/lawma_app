@@ -31,7 +31,7 @@
           </q-tabs>
         </div>
         <div>
-          <q-btn color="primary" rounded @click="toggleDialog">{{
+          <q-btn color="primary" rounded no-caps @click="toggleDialog">{{
             currentTabButtonAction
           }}</q-btn>
         </div>

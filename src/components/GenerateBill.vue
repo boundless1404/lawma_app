@@ -179,6 +179,10 @@ const propertySubscriptionOptions = computed(() => {
   }));
 });
 
+const datestring = computed(() => {
+  return billingModel.month + ' ' + billingModel.year
+})
+
 // model
 const billingModel = reactive(new BillingModel());
 
@@ -194,7 +198,8 @@ async function submit() {
       billingModel.propertySuscriptionId,
     );
 
-    $router.push('/print');
+    // add datestring path var
+    $router.push(`/print/${datestring.value}`);
     return;
   } else {
     eventBus.emit(EventNamesEnum.GENERATE_BILLING, billingModel);

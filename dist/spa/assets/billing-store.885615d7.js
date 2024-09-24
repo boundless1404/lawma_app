@@ -1,0 +1,1 @@
+import{forageGetItem as s}from"./storeforage.d82bd14e.js";import{S as a,ci as n}from"./index.040371c6.js";const o=await s(a.LGA_WARD_STREET)||{},m=n("billingStore",{state:()=>({billingDetails:o.billingDetails}),getters:{},actions:{async updateBilling({type:e,data:l}){var t;const i={billingDetail:()=>{this.billingDetails=l}};(t=i[e])==null||t.call(i)}}});export{m as u};
