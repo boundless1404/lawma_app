@@ -39,9 +39,10 @@
             </q-card-section>
             <q-card-section :class="`billing-details ${secodndIndex % 2 > 0 ? 'odd-row' : ''} `"
               style="width: 50vw; height: 36vh">
+              <p>{{datestring}}</p>
               <p>
                GRS-{{ billing.propertySubscriptionId }} | {{ billing.propertyName }} of {{ billing.streetNumber }} 
-                {{ billing.streetName }} | {{datestring}}
+                {{ billing.streetName }}
               </p>
               <div>
                 <p style="font-weight: 800;">Billing Details</p>
