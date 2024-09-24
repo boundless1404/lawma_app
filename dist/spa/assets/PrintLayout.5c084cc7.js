@@ -1,0 +1,1 @@
+import{Q as o,a as r}from"./QLayout.b8e5c838.js";import{d as n,aY as _,aQ as s,ac as u,bj as e,f as t}from"./index.be2a11c2.js";import"./QResizeObserver.817e2143.js";const d=n({__name:"PrintLayout",setup(i){return(p,c)=>{const a=_("router-view");return s(),u(o,{view:"hHh lpR fFf"},{default:e(()=>[t(r,null,{default:e(()=>[t(a)]),_:1})]),_:1})}}});export{d as default};
