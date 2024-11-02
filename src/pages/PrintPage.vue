@@ -24,18 +24,7 @@
             hyphens: 'auto',
           }">
             <q-card-section class="flex row justify-evenly" style="width: 100%; height: 4rem; margin-bottom: 1.5rem;">
-              <!-- <div class="card-logo-div">
-              <q-img src="assets/lawma-logo.jpeg" />
-            </div>
-            <div class="card-logo-div">
-             <div>
-              <q-img src="assets/grs-logo-2.png" />
-              
-            </div>
-             </div>
-            <div class="card-logo-div">
-              <q-img src="assets/lagos-state-logo.jpeg" />
-            </div> -->
+             
             </q-card-section>
             <q-card-section :class="`billing-details ${secodndIndex % 2 > 0 ? 'odd-row' : ''} `"
               style="width: 50vw; height: 36vh">
@@ -60,73 +49,8 @@
             </q-card-section>
           </q-card>
         </div>
-        <!-- left -->
-        <!-- <div>
-          <q-card
-            :style="{
-              width: '40vw',
-              height: '30vh',
-            }"
-          >
-            <q-card-section>
-              <p>Property Name</p>
-              <div>
-                <q-badge color="primary">Billing Details</q-badge>
-                <p>Property: Duplex House | Units: 2 | Amount: N5000</p>
-                <p>Property: Duplex House | Units: 2 | Amount: N5000</p>
-                <p>Arrears: N2000</p>
-                <p>Last Payment: N5000</p>
-                <p>Total: N7000</p>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div> -->
       </div>
-      <!-- bottom -->
-      <!-- <div class="flex row justify-around"> -->
-      <!-- right -->
-      <!-- <div>
-          <q-card
-            :style="{
-              width: '40vw',
-              height: '30vh',
-            }"
-          >
-            <q-card-section>
-              <p>Property Name</p>
-              <div>
-                <q-badge color="primary">Billing Details</q-badge>
-                <p>Property: Duplex House | Units: 2 | Amount: N5000</p>
-                <p>Property: Duplex House | Units: 2 | Amount: N5000</p>
-                <p>Arrears: N2000</p>
-                <p>Last Payment: N5000</p>
-                <p>Total: N7000</p>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div> -->
-      <!-- left -->
-      <!-- <div>
-          <q-card
-            :style="{
-              width: '40vw',
-              height: '30vh',
-            }"
-          >
-            <q-card-section>
-              <p>Property Name</p>
-              <div>
-                <q-badge color="primary">Billing Details</q-badge>
-                <p>Property: Duplex House | Units: 2 | Amount: N5000</p>
-                <p>Property: Duplex House | Units: 2 | Amount: N5000</p>
-                <p>Arrears: N2000</p>
-                <p>Last Payment: N5000</p>
-                <p>Total: N7000</p>
-              </div>
-            </q-card-section>
-          </q-card>
-        </div> -->
-      <!-- </div> -->
+
     </div>
     <!-- page break -->
   </q-page>

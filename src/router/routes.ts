@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/print/:datestring',
     component: () => import('layouts/PrintLayout.vue'),
-    children: [{ path: '', component: () => import('pages/PrintPage.vue') }],
+    children: [{ path: '', component: () => import('pages/PrintPage2.vue') }],
     props: true,
   },
 
