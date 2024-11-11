@@ -24,12 +24,52 @@
                 />
               </p>
               <p class="q-my-lg">
-                <span>Name</span
-                ><q-badge
+                <span>Name</span>
+                <q-badge
                   class="q-ml-sm q-pa-sm q-px-sm"
                   :label="propertySubscription.propertySubscriptionName"
                   rounded
-                />
+                >
+                  <q-popup-edit
+                    v-model="propertySubscription.propertySubscriptionName"
+                    title="Edit Property Name"
+                    auto-save
+                    v-slot="scope"
+                  >
+                    <q-input
+                      v-model="scope.value"
+                      dense
+                      autofocus
+                      counter
+                      @keyup.enter="updatePropertyName(scope.value)"
+                    />
+                  </q-popup-edit>
+                  <q-icon name="edit" class="q-ml-sm cursor-pointer text-subtitle1"/>
+                </q-badge>
+              </p>
+              <p>
+                <span>Phone</span>
+                <q-badge
+                  class="q-ml-sm q-pa-sm q-px-sm"
+                  :label="custodian.phone"
+                  rounded
+                >
+                  <q-popup-edit
+                    v-model="custodian.phone"
+                    title="Edit Phone Number"
+                    auto-save
+                    v-slot="scope"
+                  >
+                    <q-input
+                      v-model="scope.value"
+                      dense
+                      autofocus
+                      counter
+                      @keyup.enter="updatePhone(scope.value)"
+                    />
+                  </q-popup-edit>
+                  <q-icon name="edit" class="q-ml-sm cursor-pointer text-subtitle1"/>
+                </q-badge>
               </p>
             </div>
           </bordered-card>
@@ -56,19 +96,6 @@
                   
                 />
                 </q-btn>
-                <!-- <q-popup-edit
-                  v-model="propertySubscriptionArrearsRef"
-                  auto-save
-                  v-slot="scope"
-                >
-                  <q-input
-                    v-model="scope.value"
-                    dense
-                    autofocus
-                    counter
-                    @keyup.enter="scope.set"
-                  />
-                </q-popup-edit> -->
                 
                 <q-dialog v-model="openEditModal" >
                   <div>
@@ -324,8 +351,9 @@ import { unref } from 'vue';
 import AdvanceTableMenu from 'components/AdvanceTableMenu.vue';
 import { useNotify } from 'src/composables/useNotify';
 import { PropertyTypeModel } from 'src/models/PropertyType.model';
-import { BillingHandler } from 'src/lib/eventHandlers/Billing.handler';
 import useUiProcessHandler from 'src/composables/useUIProcessHandler';
+import { parseISO } from 'date-fns';
+
 
 export interface ViewPropertyDetailsProps {
   dialogWidth?: number;
@@ -414,6 +442,8 @@ const rowIndex = ref(-1);
 const isSaving = ref(false);
 const propertySubscriptionArrearsRef = ref('');
 const openEditModal = ref(false);
+const openEditNameModal = ref(false);
+const openEditPhoneModal = ref(false);
 
 // computed
 const propertyTypesOptions = computed(() => {
@@ -424,6 +454,43 @@ const propertyTypesOptions = computed(() => {
     };
   });
 });
+
+// Add new functions
+function toggleEditNameModal() {
+  openEditNameModal.value = !openEditNameModal.value;
+}
+
+function toggleEditPhoneModal() {
+  openEditPhoneModal.value = !openEditPhoneModal.value;
+}
+
+async function updatePropertyName(newName: string) {
+  await useUiProcessHandler({
+    loader: $q.loading,
+    process: async () => {
+      await PropertySubscriptionHandler.updatePropertyName({
+        propertySubscriptionName: newName,
+        propertySubscriptionId: props.propertySubscriptionId,
+      });
+    },
+    loaderMessage: 'Updating property name...',
+  });
+  await fetchPropertySubscription();
+}
+
+// async function updatePhone(newPhone: string) {
+//   await useUiProcessHandler({
+//     loader: $q.loading,
+//     process: async () => {
+//       await PropertySubscriptionHandler.updatePhone({
+//         phone: newPhone,
+//         propertySubscriptionId: props.propertySubscriptionId,
+//       });
+//     },
+//     loaderMessage: 'Updating phone...',
+//   });
+//   await fetchPropertySubscription();
+// }
 
 const arrears = computed(() => {
   if (propertySubscription.value.billingAccount) {
@@ -441,14 +508,14 @@ const lastPayment = computed(() => {
   if (payments && payments.length > 0) {
     const payment = (
       unref(propertySubscription.value).payments as {
-        createdAt: Date;
+        createdAt: string;
         amount: string;
       }[]
-    ).sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())[0];
-    console.log('This is the last payment --> ', payment);
+    ).sort((a, b) => parseISO(b.createdAt).getTime() - parseISO(a.createdAt).getTime())[0];
+    // console.log('This is the last payment --> ', payment);
 
     return {
-      createdAt: payment.createdAt.toDateString(),
+      createdAt: parseISO(payment.createdAt).toDateString(),
       amount: payment.amount,
     };
   } else {

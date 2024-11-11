@@ -10,9 +10,9 @@ export function useNotify({
 } = {}) {
   Notify.create({
     message:
-      !message || type === 'negative'
+      type === 'negative'
         ? 'Process failed'
-        : 'Process was successful',
+        : message || 'Process was successful',
     type,
     timeout: type === 'positive' ? 300 : 5000,
   });

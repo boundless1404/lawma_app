@@ -279,4 +279,15 @@ export class PropertySubscriptionHandler {
 
     return response;
   }
+
+  // static updatePhone(data: { phone: string; propertySubscriptionId: string; }) {
+  //   //
+  // }
+
+  static async updatePropertyName(data: { propertySubscriptionName: string; propertySubscriptionId: string; }) {
+    //
+    const response = await requestApi(UrlPathsEnum.UPDATE_PROPERTY_NAME, 'put', {
+      body: data,
+    });
+  }
 }
