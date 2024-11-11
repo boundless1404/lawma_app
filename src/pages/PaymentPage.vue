@@ -1,13 +1,11 @@
 <template>
   <q-page :style-fn="pageStyleFunc">
-    <div
-      :style="{
-        backgroundColor: `${$getColor('light-page')}`,
-        padding: '10rem 1rem 0 1rem',
-        height: '100vh',
-        width: '100%',
-      }"
-    >
+    <div :style="{
+      backgroundColor: `${$getColor('light-page')}`,
+      padding: '10rem 1rem 0 1rem',
+      height: '100vh',
+      width: '100%',
+    }">
       <!-- Payment History -->
       <div>
         <h5>{{ paymentTableTitle }}</h5>
@@ -15,36 +13,48 @@
       <!-- Month Selection Component -->
       <!-- Button  -->
       <div class="q-my-lg flex row justify-between">
-        <q-select
-          v-model="paymentMonth"
-          label="Month"
-          filled
-          outlined
-          label-color="dark"
-          :options="paymentMonthsOptions"
-          clearable
-          map-options
-          emit-value
-        ></q-select>
-        <q-btn
-          label="Post Payment"
-          color="primary"
-          rounded
-          @click="showPaymentFormDialog = true"
-        />
+        <q-select v-model="paymentMonth" label="Month" filled outlined label-color="dark"
+          :options="paymentMonthsOptions" clearable map-options emit-value></q-select>
+        <q-btn label="Post Payment" color="primary" rounded @click="showPaymentFormDialog = true" />
       </div>
       <!-- Table -->
       <div>
-        <q-card rounded class="bg-accent">
+        <q-card rounded class="bg-accent"
+          :style="{ maxHeight: '50vh', paddingBottom: '3rem', overflowY: 'scroll', marginBottom: '3rem' }">
           <q-card-section>
-            <q-table
-              :rows="paymentTableRows"
-              bordered
-              :columns="paymentColumns"
+            <q-table ref="paymentTableRef" :rows="paymentTableRows" bordered :columns="paymentColumns"
               :table-header-style="{
                 backgroundColor: `${$getColor('secondary')}`,
-              }"
-            ></q-table>
+              }">
+              <template v-slot:top-right>
+                <div class="flex row" style="gap: 0.5rem;">
+                  <div class="q-mb-lg" style="width: 18rem;">
+                    <q-select label="Street" v-model="tableStreetId" dense outlined color="secondary" label-color="dark"
+                      clearable :options="streetOptionsFiltered" emit-value map-options use-input
+                      @filter="filterStreets">
+                      <template v-slot:selected-item="scope">
+                        <div class="ellipsis" style="max-width: 14rem">
+                          {{ addElipsis(scope.opt.label, 20)  }}
+                        </div>
+                      </template>
+                    </q-select>
+                  </div>
+                  <div style="width: 18rem;">
+                    <q-select v-model="tablePropertySubscriptionId" label="Property Name" label-color="dark" dense
+                      outlined color="secondary" clearable :options="propertyOptionsFiltered" map-options emit-value
+                      use-input @filter="filterProperties">
+                      <template v-slot:selected-item="scope">
+                        <div class="ellipsis" style="max-width: 14rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                          {{ addElipsis(scope.opt.label, 20) }}
+                        </div>
+                      </template>
+                    </q-select>
+                  </div>
+                  <div><q-btn style="height: 2.4rem;" icon="search" @click="getPayments" /></div>
+                  <div><q-btn style="height: 2.4rem;" :icon="isOnFullScreen ? 'fullscreen_exit' : 'fullscreen' " @click="togglePaymentTableToFullscreen"  /></div>
+                </div>
+              </template>
+            </q-table>
           </q-card-section>
         </q-card>
       </div>
@@ -59,84 +69,38 @@
               <div class="flext row justify-between">
                 <div class="flex column justify-around" style="width: 40%">
                   <div class="q-mb-lg">
-                    <q-select
-                      label="Street"
-                      v-model="paymentModel.streetId"
-                      filled
-                      outlined
-                      color="secondary"
-                      label-color="dark"
-                      :options="streetOptions"
-                      emit-value
-                      map-options
-                    />
+                    <q-select label="Street" v-model="paymentModel.streetId" filled outlined color="secondary"
+                      label-color="dark" clearable :options="streetOptionsFiltered" emit-value use-input
+                      @filter="filterStreets" map-options />
                   </div>
                   <div>
-                    <q-select
-                      v-model="paymentModel.propertySubscriptionId"
-                      label="Property Name"
-                      label-color="dark"
-                      filled
-                      outlined
-                      color="secondary"
-                      clearable
-                      :rules="[
+                    <q-select v-model="paymentModel.propertySubscriptionId" label="Property Name" label-color="dark"
+                      filled outlined color="secondary" clearable :rules="[
                         () =>
                           $validateField(
                             paymentModel,
                             'propertySubscriptionId'
                           ),
-                      ]"
-                      :options="propertySubscriptionOptions"
-                      map-options
-                      emit-value
-                    ></q-select>
+                      ]" :options="propertyOptionsFiltered" map-options emit-value use-input
+                      @filter="filterProperties"></q-select>
                   </div>
                   <div>
-                    <q-input
-                      v-model="paymentModel.payerName"
-                      label="Payer Name"
-                      label-color="dark"
-                      filled
-                      outlined
-                      color="secondary"
-                      clearable
-                      :rules="[() => $validateField(paymentModel, 'payerName')]"
-                    />
+                    <q-input v-model="paymentModel.payerName" label="Payer Name" label-color="dark" filled outlined
+                      color="secondary" clearable :rules="[() => $validateField(paymentModel, 'payerName')]" />
                   </div>
                 </div>
                 <div class="flex column justify-between" style="width: 40%">
                   <div class="q-mb-lg">
-                    <q-input
-                      filled
-                      v-model="paymentModel.paymentDate"
-                      mask="date"
-                      label="Payment Date"
-                      label-color="dark"
-                      outlined
-                      :rules="[
+                    <q-input filled v-model="paymentModel.paymentDate" mask="date" label="Payment Date"
+                      label-color="dark" outlined :rules="[
                         () => $validateField(paymentModel, 'paymentDate'),
-                      ]"
-                    >
+                      ]">
                       <template v-slot:append>
                         <q-icon name="event" class="cursor-pointer">
-                          <q-popup-proxy
-                            cover
-                            transition-show="scale"
-                            transition-hide="scale"
-                          >
-                            <q-date
-                              v-model="paymentModel.paymentDate"
-                              title="Select Date"
-                              today-btn
-                            >
+                          <q-popup-proxy cover transition-show="scale" transition-hide="scale">
+                            <q-date v-model="paymentModel.paymentDate" title="Select Date" today-btn mask="YYYY-MM-DD">
                               <div class="row items-center justify-end">
-                                <q-btn
-                                  v-close-popup
-                                  label="Close"
-                                  color="primary"
-                                  flat
-                                />
+                                <q-btn v-close-popup label="Close" color="primary" flat />
                               </div>
                             </q-date>
                           </q-popup-proxy>
@@ -145,28 +109,15 @@
                     </q-input>
                   </div>
                   <div>
-                    <q-input
-                      v-model="paymentModel.amount"
-                      label="Amount"
-                      outlined
-                      filled
-                      label-color="dark"
-                      color="secondary"
-                      :rules="[() => $validateField(paymentModel, 'amount')]"
-                    />
+                    <q-input v-model="paymentModel.amount" label="Amount" outlined filled label-color="dark"
+                      color="secondary" :rules="[() => $validateField(paymentModel, 'amount')]" />
                   </div>
                 </div>
               </div>
               <div class="flex row justify-center q-mt-lg">
-                <q-btn
-                  :style="{
-                    width: '40%',
-                  }"
-                  label="Submit"
-                  color="primary"
-                  rounded
-                  @click="onSubmit"
-                />
+                <q-btn :style="{
+                  width: '40%',
+                }" label="Submit" color="primary" rounded @click="onSubmit" />
               </div>
             </q-form>
           </q-card-section>
@@ -177,7 +128,7 @@
 </template>
 
 <script setup lang="ts">
-import { EventBus, QForm, QTableColumn, useQuasar } from 'quasar';
+import { EventBus, QForm, QTable, QTableColumn, useQuasar } from 'quasar';
 import { months } from 'src/lib/projectConstants';
 import { computed, inject, reactive, ref, watch } from 'vue';
 import DialogCard from '../components/DialogCard.vue';
@@ -238,7 +189,7 @@ const paymentColumns: QTableColumn[] = [
 
 const paymentModel = reactive(new PaymentModel());
 
-// refs
+//#region refs
 const paymentMonth = ref(monthNow);
 const paymentTableTitle = ref('Payment History');
 const showPaymentFormDialog = ref(false);
@@ -246,6 +197,22 @@ const propertySubscriptions = ref<PropertySubscription[]>();
 const paymentFormRef = ref<QForm>();
 const payments = ref<PaymentRecord[]>([]);
 const { streets } = storeToRefs(LgaWardStreetStore);
+const filter = ref('');
+const tableStreetId = ref('');
+const tablePropertySubscriptionId = ref('');
+const paymentTableRef = ref<QTable>();
+const isOnFullScreen = ref(false);
+
+//#endregion
+
+
+PaymentHandler.handlePostPayment(eventBus, {
+  onSuccess: onPaymentPostSuccess,
+  onError: onPaymentPostError,
+});
+
+//#region computed
+// computed
 const streetOptions = computed(() => {
   return streets?.value?.map((street) => {
     return {
@@ -255,13 +222,8 @@ const streetOptions = computed(() => {
   });
 });
 
-// handlers
-PaymentHandler.handlePostPayment(eventBus, {
-  onSuccess: onPaymentPostSuccess,
-  onError: onPaymentPostError,
-});
+const streetOptionsFiltered = ref(streetOptions.value);
 
-// computed
 const paymentTableRows = computed(() => {
   return payments.value;
 });
@@ -275,6 +237,9 @@ const propertySubscriptionOptions = computed(() => {
   });
 });
 
+
+const propertyOptionsFiltered = ref(propertySubscriptionOptions.value);
+
 const paymentMonthsOptions = computed(() => {
   return Object.values(months).map((value) => value);
 });
@@ -282,8 +247,60 @@ const paymentMonthsOptions = computed(() => {
 asyncComputed(async () => {
   await paymentModel.validate();
 });
+//#endregion
 
-// methods
+//#region methods
+function togglePaymentTableToFullscreen() {
+  paymentTableRef.value?.toggleFullscreen();
+  isOnFullScreen.value = !isOnFullScreen.value;
+}
+
+function addElipsis(str: string, maxLength: number) {
+  if (str?.length > maxLength) {
+    return str.substring(0, maxLength) + '...';
+  }
+  return str;
+}
+function filterStreets(val: string, update: (callback: () => void) => void) {
+  if (val === '') {
+    update(() => {
+      streetOptionsFiltered.value = streetOptions.value;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    streetOptionsFiltered.value = streetOptions.value?.filter(
+      v => v.label.toLowerCase().indexOf(needle) > -1
+    );
+  });
+}
+
+function filterProperties(val: string, update: (callback: () => void) => void) {
+  if (val === '') {
+    update(() => {
+      propertyOptionsFiltered.value = propertySubscriptionOptions.value;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    propertyOptionsFiltered.value = propertySubscriptionOptions.value?.filter(
+      v => v.label.toLowerCase().indexOf(needle) > -1
+    );
+  });
+}
+
+async function getPayments() {
+  if (tablePropertySubscriptionId.value) {
+    payments.value = await PaymentHandler.getPayments({
+      month: paymentMonth.value,
+      propertySubscriptionId: tablePropertySubscriptionId.value,
+    });
+  }
+}
 async function onSubmit() {
   //
   await paymentModel.validate();
@@ -296,6 +313,11 @@ async function onSubmit() {
     message: 'Please, wait ...',
   });
 
+  const date = new Date(paymentModel.paymentDate);
+  paymentModel.paymentDate = new Date(
+    date.getFullYear(),
+    date.getMonth(),
+    date.getDate()).toISOString();
   eventBus.emit(EventNamesEnum.POST_PAYMENT, paymentModel);
 }
 
@@ -314,36 +336,49 @@ function pageStyleFunc(offset: number) {
   // this is actually what the default style-fn does in Quasar
   return {
     minHeight: offset ? `calc(100vh - ${offset}px)` : '100vh',
-    padding: '0',
+    paddingBottom: '2rem',
     margin: '-40px 0',
-    overflowY: 'hidden',
+    overflowY: 'scroll',
+
   };
 }
+//#endregion
 
-// watcher
+//#region  watchers
+// watch(tablePropertySubscriptionId, async (newVal) => {
+// if (newVal) {
+//   payments.value = await PaymentHandler.getPayments({
+//     month: paymentMonth.value,
+//     propertySubscriptionId: newVal,
+//   });
+// }
+// });
+
 watch(paymentMonth, async (newValue) => {
   paymentTableTitle.value = `Payment History (${newValue})`;
   payments.value = await PaymentHandler.getPayments({
     month: newValue,
+    ...(tablePropertySubscriptionId.value ? { propertySubscriptionId: tablePropertySubscriptionId.value } : {})
   });
 });
 
 watch(
-  () => paymentModel.streetId,
+  [() => paymentModel.streetId, tableStreetId],
   async (newVal) => {
-    if (newVal) {
+    if ([newVal[0], newVal[1]].some(Boolean)) {
       // paymentModel.propertySuscriptionId = '';
       // re-fetch property-subscriptions
       const requestData = await PropertySubscriptionHandler.getSubscriptions({
-        streetId: newVal,
-        rowsPerPage: '200',
+        streetId: newVal[0] || newVal[1],
       });
       propertySubscriptions.value = requestData?.data;
     }
   }
 );
 
-//life cycle hooks
+//#endregion
+
+//#region  life cycle hooks
 onMounted(async () => {
   const requestData = await PropertySubscriptionHandler.getSubscriptions();
   propertySubscriptions.value = requestData?.data;
@@ -368,4 +403,5 @@ onMounted(() => {
 onBeforeUnmount(() => {
   eventBus.off(EventNamesEnum.POST_PAYMENT);
 });
+//#endregion
 </script>

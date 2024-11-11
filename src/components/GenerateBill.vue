@@ -38,9 +38,12 @@
             outlined
             color="secondary"
             label-color="dark"
-            :options="streetOptions"
+            :options="streetOptionsFiltered"
             emit-value
             map-options
+            use-input
+            @filter="filterStreets"
+            clearable
           />
           <q-select
             v-model="billingModel.month"
@@ -63,9 +66,12 @@
             outlined
             color="secondary"
             label-color="dark"
-            :options="propertySubscriptionOptions"
+            :options="propertySubscriptionOptionsFiltered"
             emit-value
             map-options
+            use-input
+            @filter="filterProperties"
+            clearable
           />
           <q-select
             v-model="billingModel.year"
@@ -149,6 +155,34 @@ const billingModelForm = ref<QForm>();
 const propertySubscriptionId = ref('')
 
 // computed
+
+const streetOptions = computed(() => {
+  return streets?.value?.map((street) => {
+    return {
+      label: street.name,
+      value: street.id,
+    };
+  });
+});
+
+const streetOptionsFiltered = ref(streetOptions.value);
+
+function filterStreets(val: string, update: (callback: () => void) => void) {
+  if (val === '') {
+    update(() => {
+      streetOptionsFiltered.value = streetOptions.value;
+    });
+    return;
+  }
+
+  update(() => {
+    const needle = val.toLowerCase();
+    streetOptionsFiltered.value = streetOptions.value?.filter(
+      v => v.label.toLowerCase().indexOf(needle) > -1
+    );
+  });
+}
+
 const printGenerateTitle = computed(() =>
   printGeneratToggle.value === 'print' ? 'Print Bill' : 'Generate Bill'
 );
@@ -163,21 +197,29 @@ const printGenerateToggleCapitalize = computed(() =>
   printGeneratToggle.value === 'print' ? 'Print' : 'Generate'
 );
 
-const streetOptions = computed(() => {
-  return streets?.value?.map((street) => {
-    return {
-      label: street.name,
-      value: street.id,
-    };
-  });
-});
-
 const propertySubscriptionOptions = computed(() => {
   return propertySubscriptions.value?.map((sub) => ({
     label: sub.propertySubscriptionName,
     value: sub.propertySubscriptionId,
   }));
 });
+
+const propertySubscriptionOptionsFiltered = ref(propertySubscriptionOptions.value);
+
+function filterProperties(val: string, update: (callback: () => void) => void) {
+  if (val === '') {
+    update(() => {
+      propertySubscriptionOptionsFiltered.value = propertySubscriptionOptions.value;
+    });
+    return;
+  }
+  update(() => {
+    const needle = val.toLowerCase();
+    propertySubscriptionOptionsFiltered.value = propertySubscriptionOptions.value?.filter(
+      v => v.label.toLowerCase().indexOf(needle) > -1
+    );
+  });
+}
 
 const datestring = computed(() => {
   return billingModel.month + ' ' + billingModel.year

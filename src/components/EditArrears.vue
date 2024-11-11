@@ -30,7 +30,7 @@ import useUiProcessHandler from 'src/composables/useUIProcessHandler';
 import { BillingHandler } from 'src/lib/eventHandlers/Billing.handler';
 import { isModelValid } from 'src/lib/utils';
 import { EditArrearsModel } from 'src/models/EditArrears.model';
-import { computed, defineComponent, onMounted, reactive, ref } from 'vue';
+import { defineComponent, onMounted, reactive } from 'vue';
 defineComponent({
   name: 'edit-arrears',
 });

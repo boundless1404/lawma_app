@@ -25,15 +25,16 @@ const useLgaWardStreetStore = defineStore('lgaWardStreet', {
   actions: {
     async fetchServerData({ type }: { type: 'lga' | 'ward' | 'street' }) {
       //
-      const actionHandlers: { [handlerType: string]: () => Promise<void> } = {
+      const actionHandlers: { [handlerType: string]: () => Promise<unknown> } = {
         street: async () => {
           const streets =
             (await LgaWardStreetHandler.getStreets()) as StreetModel[];
           this.streets = streets;
+          return streets;
         },
       };
       const handler = actionHandlers[type];
-      handler?.();
+      return await handler?.();
     },
   },
 });
