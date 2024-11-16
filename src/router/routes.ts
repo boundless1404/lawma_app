@@ -3,9 +3,9 @@ import { RouteRecordRaw } from 'vue-router';
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    component: () => import('layouts/AuthenticatedLayout.vue'),
+    component: () => import('layouts/MainLayout.vue'),
     children: [
-      { path: '', component: () => import('pages/DashboardPage.vue') },
+      { path: '', component: () => import('pages/IndexPage.vue') },
     ],
   },
   {
