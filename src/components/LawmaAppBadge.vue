@@ -9,7 +9,7 @@
       cursor: 'pointer',
     }"
     @click="$router.push({ path: '/auth/signin' })"
-    >Lawma App</q-badge
+    >Waste Pro</q-badge
   >
 </template>
 <script setup lang="ts">

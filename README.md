@@ -1,6 +1,6 @@
 # lawma_app_frontend (lawma-app-frontend)
 
-Lawma App Project
+Waste Pro Project
 
 ## Install the dependencies
 ```bash

@@ -27,7 +27,7 @@ withDefaults(defineProps<TitleBadgeProps>(), {
   bgColor: 'secondary',
   color: 'dark',
   borderColor: 'secondary',
-  titleHeading: 'Lawma App',
+  titleHeading: 'Waste Pro',
   headerTextSize: 'h5',
 });
 
